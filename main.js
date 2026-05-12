@@ -179,10 +179,29 @@ const clampToWorkArea = (win, x, y) => {
   const bounds = win.getBounds()
   const display = screen.getDisplayMatching({ x, y, width: bounds.width, height: bounds.height })
   const { workArea } = display
+  const minX = workArea.x
+  const maxX = workArea.x + workArea.width - bounds.width
+  const minY = workArea.y
+  const maxY = workArea.y + workArea.height - bounds.height
 
   return {
-    x: Math.min(Math.max(Math.round(x), workArea.x), workArea.x + workArea.width - bounds.width),
-    y: Math.min(Math.max(Math.round(y), workArea.y), workArea.y + workArea.height - bounds.height)
+    x: Math.min(Math.max(Math.round(x), minX), maxX),
+    y: Math.min(Math.max(Math.round(y), minY), maxY),
+    hitX: x <= minX || x >= maxX,
+    hitY: y <= minY || y >= maxY
+  }
+}
+
+const getMovementState = (win) => {
+  const bounds = win.getBounds()
+  const display = screen.getDisplayMatching(bounds)
+  const { workArea } = display
+  const maxX = workArea.x + workArea.width - bounds.width
+
+  return {
+    x: bounds.x,
+    atLeft: bounds.x <= workArea.x,
+    atRight: bounds.x >= maxX
   }
 }
 
@@ -236,6 +255,13 @@ ipcMain.handle('pet:get-bounds', (event) => {
   return win.getBounds()
 })
 
+ipcMain.handle('pet:get-movement-state', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win) return null
+
+  return getMovementState(win)
+})
+
 ipcMain.on('pet:set-position', (event, point) => {
   const win = BrowserWindow.fromWebContents(event.sender)
   if (!win || !point) return
@@ -244,13 +270,14 @@ ipcMain.on('pet:set-position', (event, point) => {
   win.setPosition(next.x, next.y)
 })
 
-ipcMain.on('pet:move-by', (event, delta) => {
+ipcMain.handle('pet:move-by', (event, delta) => {
   const win = BrowserWindow.fromWebContents(event.sender)
-  if (!win || !delta) return
+  if (!win || !delta) return null
 
   const [x, y] = win.getPosition()
   const next = clampToWorkArea(win, x + delta.x, y + delta.y)
   win.setPosition(next.x, next.y)
+  return next
 })
 
 ipcMain.on('pet:quit', () => {

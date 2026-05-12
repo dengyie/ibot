@@ -12,6 +12,7 @@ const state = {
   frameTimer: 0,
   walking: false,
   walkDirection: -1,
+  walkMoving: false,
   walkTimer: 0,
   drag: null,
   bubbleTimer: 0
@@ -25,6 +26,11 @@ const say = (text, duration = 1300) => {
   state.bubbleTimer = window.setTimeout(() => {
     bubble.classList.remove('show')
   }, duration)
+}
+
+const setWalkDirection = (direction) => {
+  state.walkDirection = direction < 0 ? -1 : 1
+  cat.style.setProperty('--cat-direction', state.walkDirection < 0 ? '1' : '-1')
 }
 
 const setAction = (action) => {
@@ -61,24 +67,53 @@ const tickFrame = () => {
   cat.src = animation.frames[state.frameIndex]
 }
 
-const tickWalk = () => {
-  if (!state.walking || state.drag) return
+const turnWalk = () => {
+  setWalkDirection(state.walkDirection * -1)
+}
 
-  window.petAPI.moveBy({
-    x: state.walkDirection * 2,
-    y: 0
-  })
+const tickWalk = async () => {
+  if (!state.walking || state.drag || state.walkMoving) return
+
+  state.walkMoving = true
+
+  try {
+    const moveResult = await window.petAPI.moveBy({
+      x: state.walkDirection * 2,
+      y: 0
+    })
+
+    if (moveResult?.hitX) {
+      turnWalk()
+    }
+  } catch (error) {
+    state.walking = false
+  } finally {
+    state.walkMoving = false
+  }
 
   if (Math.random() < 0.012) {
-    state.walkDirection *= -1
-    cat.style.scale = `${state.walkDirection < 0 ? 1 : -1} 1`
+    turnWalk()
   }
 }
 
-const toggleWalk = () => {
+const toggleWalk = async () => {
   state.walking = !state.walking
-  state.walkDirection = Math.random() > 0.5 ? 1 : -1
-  cat.style.scale = `${state.walkDirection < 0 ? 1 : -1} 1`
+
+  if (state.walking) {
+    try {
+      const movementState = await window.petAPI.getMovementState()
+      if (movementState?.atRight) {
+        setWalkDirection(-1)
+      } else if (movementState?.atLeft) {
+        setWalkDirection(1)
+      } else {
+        setWalkDirection(Math.random() > 0.5 ? 1 : -1)
+      }
+    } catch (error) {
+      setWalkDirection(Math.random() > 0.5 ? 1 : -1)
+    }
+  }
+
   setAction(state.defaultAction)
   say(state.walking ? '出发' : '休息一下')
 }

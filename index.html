@@ -38,13 +38,14 @@
         }
 
         #cat {
+            --cat-direction: 1;
             position: absolute;
             left: 50%;
             bottom: 8px;
             width: 220px;
             height: 220px;
             object-fit: contain;
-            transform: translateX(-50%);
+            transform: translateX(-50%) scaleX(var(--cat-direction));
             filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.22));
             pointer-events: none;
         }
