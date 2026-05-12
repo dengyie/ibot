@@ -1,0 +1,68 @@
+import os
+import sys
+from rembg import remove, new_session
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+def process_image(input_path, output_path, session):
+    print(f"正在处理: {input_path}")
+    try:
+        with Image.open(input_path) as img:
+            img = img.convert("RGBA")
+            
+            output_img = remove(
+                img,
+                session=session,
+                alpha_matting=False,           # 关闭，避免过度扣除
+                alpha_matting_foreground_threshold=240,
+                alpha_matting_background_threshold=10,
+                alpha_matting_erode_size=10,
+                post_process_mask=True,        # 对 mask 做后处理，边缘更干净
+            )
+            
+            output_img.save(output_path, "PNG")
+            print(f"✅ 成功保存到: {output_path}")
+
+    except Exception as e:
+        print(f"处理失败 {input_path}: {e}")
+
+def process_folder(input_dir, output_dir):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"创建输出文件夹: {output_dir}")
+
+    # 用 u2net 模型，专门针对主体（动物效果更好）
+    # 可选模型: "u2net", "u2net_human_seg", "isnet-general-use"
+    session = new_session("isnet-general-use")
+
+    valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.webp')
+    processed_count = 0
+
+    for filename in os.listdir(input_dir):
+        if filename.lower().endswith(valid_extensions):
+            input_path = os.path.join(input_dir, filename)
+            file_base = os.path.splitext(filename)[0]
+            output_filename = f"{file_base}_no_bg.png"
+            output_path = os.path.join(output_dir, output_filename)
+            
+            process_image(input_path, output_path, session)
+            processed_count += 1
+            
+    if processed_count == 0:
+        print(f"在 {input_dir} 中没有找到有效的图片文件。")
+    else:
+        print(f"🎉 批量处理完成，共处理 {processed_count} 张图片。")
+
+if __name__ == "__main__":
+    input_folder = "./cat_anime/flames/eat"
+    output_folder = "./transparent_cats"
+
+    print("--- AI 抠图脚本启动 ---")
+    
+    if not os.path.exists(input_folder):
+        os.makedirs(input_folder)
+        print(f"已自动创建 '{input_folder}'，请放入图片后重新运行。")
+    else:
+        process_folder(input_folder, output_folder)
+        
+    print("--- 脚本运行结束 ---")
