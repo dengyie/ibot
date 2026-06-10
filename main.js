@@ -18,6 +18,8 @@ const { createEventBus } = require('./src/main/services/event-bus')
 const { createSettingsService } = require('./src/main/services/settings-service')
 const { createActionService } = require('./src/main/services/action-service')
 const { createPetService } = require('./src/main/services/pet-service')
+const { createSecretService } = require('./src/main/services/secret-service')
+const { createAiService } = require('./src/main/services/ai-service')
 
 let petWindow = null
 const getPetWindow = () => petWindow
@@ -41,6 +43,8 @@ app.whenReady().then(() => {
   const settingsService = createSettingsService({ eventBus, loadSettings, saveSettings })
   const actionService = createActionService({ getPetAnimations })
   const petService = createPetService({ settingsService, actionService })
+  const secretService = createSecretService()
+  const aiService = createAiService({ settingsService, secretService })
 
   syncLoginItemSettings(petService.getSettings().autoStart)
 
@@ -48,6 +52,7 @@ app.whenReady().then(() => {
   registerIpcHandlers({
     getPetWindow,
     petService,
+    aiService,
     applyWindowScale: (scale) => applyWindowScale(petWindow, scale),
     clampToWorkArea,
     getMovementState,

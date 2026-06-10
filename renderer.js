@@ -273,6 +273,10 @@ window.petAPI.onSettingsChanged((s) => {
   if (s.bubbleDuration != null) state.bubbleDuration = s.bubbleDuration
 })
 
+window.petAPI.onPetSay((payload) => {
+  if (payload?.text) say(payload.text)
+})
+
 // DOM 事件绑定
 pet.addEventListener('pointerdown', onPointerDown)
 pet.addEventListener('pointermove', onPointerMove)

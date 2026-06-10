@@ -10,13 +10,19 @@ const IPC = {
   PET_GET_MOVEMENT_STATE: 'pet:get-movement-state',
   PET_SET_POSITION: 'pet:set-position',
   PET_MOVE_BY: 'pet:move-by',
+  PET_SAY: 'pet:say',
   PET_QUIT: 'pet:quit',
   SETTINGS_OPEN: 'settings:open',
   SETTINGS_GET: 'settings:get',
   SETTINGS_SAVE: 'settings:save',
   SETTINGS_PREVIEW_SCALE: 'settings:preview-scale',
   SETTINGS_CLOSE: 'settings:close',
-  SETTINGS_CHANGED: 'settings:changed'
+  SETTINGS_CHANGED: 'settings:changed',
+  AI_GET_CONFIG: 'ai:get-config',
+  AI_SAVE_CONFIG: 'ai:save-config',
+  AI_SAVE_API_KEY: 'ai:save-api-key',
+  AI_TEST_CONNECTION: 'ai:test-connection',
+  AI_CHAT: 'ai:chat'
 }
 
 module.exports = { IPC }

@@ -18,7 +18,9 @@ body,
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -170,6 +172,12 @@ button {
   border-bottom: 1px solid #dde2e8;
 }
 
+.field-row.tall {
+  align-items: start;
+  min-height: 118px;
+  padding-top: 18px;
+}
+
 .field-label {
   font-size: 14px;
   font-weight: 600;
@@ -184,6 +192,34 @@ button {
 .range {
   width: min(360px, 100%);
   accent-color: #1f2937;
+}
+
+.text-input {
+  width: min(440px, 100%);
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #cfd6df;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #202124;
+  outline: none;
+}
+
+.text-input:focus {
+  border-color: #1f2937;
+  box-shadow: 0 0 0 2px rgba(31, 41, 55, 0.12);
+}
+
+.textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.inline-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .segmented {
@@ -255,6 +291,58 @@ button {
   font-size: 12px;
 }
 
+.chat-panel {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.chat-transcript {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 180px;
+  max-height: 260px;
+  overflow: auto;
+  padding: 14px 0;
+  border-top: 1px solid #dde2e8;
+  border-bottom: 1px solid #dde2e8;
+}
+
+.empty-chat {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.chat-message {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chat-message strong {
+  color: #374151;
+  font-weight: 650;
+}
+
+.chat-message span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chat-message.assistant span {
+  color: #14532d;
+}
+
+.chat-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
 .loading {
   display: grid;
   place-items: center;
@@ -277,5 +365,14 @@ button {
     grid-template-columns: 1fr;
     gap: 10px;
     padding: 14px 0;
+  }
+
+  .inline-action,
+  .chat-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-action {
+    display: grid;
   }
 }

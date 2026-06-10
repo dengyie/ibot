@@ -38,14 +38,30 @@ const defaultSettings = {
   autoStart: false
 }
 
+const defaultAiConfig = {
+  enabled: false,
+  provider: 'openai-compatible',
+  baseUrl: 'https://api.openai.com/v1',
+  model: 'gpt-4o-mini',
+  apiKeyRef: 'ai.default',
+  systemPrompt: 'You are a friendly desktop pet companion.',
+  hasApiKey: false
+}
+
 const api = window.controlCenterAPI || {
   getSettings: async () => defaultSettings,
   saveSettings: async (settings) => settings,
   previewScale: () => {},
+  getAiConfig: async () => defaultAiConfig,
+  saveAiConfig: async (config) => ({ ...defaultAiConfig, ...config }),
+  saveAiApiKey: async () => ({ apiKeyRef: 'ai.default', hasApiKey: true }),
+  testAiConnection: async () => ({ ok: true, reply: 'ok' }),
+  chat: async ({ message }) => ({ reply: `Echo: ${message}` }),
   close: () => {}
 }
 
 const cloneSettings = (settings) => ({ ...defaultSettings, ...settings })
+const cloneAiConfig = (config) => ({ ...defaultAiConfig, ...config })
 
 function SegmentedControl({ label, value, options, onChange }) {
   return (
@@ -150,6 +166,135 @@ function PetSettings({ settings, originalSettings, onChange, onSave, onReset, sa
   )
 }
 
+function AiSettings({
+  config,
+  onChange,
+  onSave,
+  onSaveApiKey,
+  onTest,
+  onSendChat,
+  saving,
+  status,
+  apiKeyDraft,
+  setApiKeyDraft,
+  chatDraft,
+  setChatDraft,
+  chatMessages,
+  chatting
+}) {
+  return (
+    <section className="pane">
+      <header className="pane-header">
+        <div>
+          <h1>AI</h1>
+          <p>聊天 Provider 与模型配置</p>
+        </div>
+        <div className="header-actions">
+          <button type="button" className="ghost" onClick={onTest} disabled={saving}>
+            测试
+          </button>
+          <button type="button" className="primary" onClick={onSave} disabled={saving}>
+            {saving ? '保存中' : '保存'}
+          </button>
+        </div>
+      </header>
+
+      <div className="section">
+        <div className="field-row">
+          <div className="field-label">启用聊天</div>
+          <Toggle checked={config.enabled} onChange={(enabled) => onChange({ enabled })} />
+        </div>
+
+        <label className="field-row">
+          <span className="field-label">Provider</span>
+          <select
+            className="text-input"
+            value={config.provider}
+            onChange={(event) => onChange({ provider: event.target.value })}
+          >
+            <option value="openai-compatible">OpenAI compatible</option>
+          </select>
+        </label>
+
+        <label className="field-row">
+          <span className="field-label">Base URL</span>
+          <input
+            className="text-input"
+            value={config.baseUrl}
+            onChange={(event) => onChange({ baseUrl: event.target.value })}
+          />
+        </label>
+
+        <label className="field-row">
+          <span className="field-label">Model</span>
+          <input
+            className="text-input"
+            value={config.model}
+            onChange={(event) => onChange({ model: event.target.value })}
+          />
+        </label>
+
+        <div className="field-row">
+          <div>
+            <div className="field-label">API Key</div>
+            <div className="field-note">{config.hasApiKey ? '已保存' : '未保存'}</div>
+          </div>
+          <div className="inline-action">
+            <input
+              className="text-input"
+              type="password"
+              value={apiKeyDraft}
+              placeholder={config.hasApiKey ? '输入新密钥覆盖' : '输入 API Key'}
+              onChange={(event) => setApiKeyDraft(event.target.value)}
+            />
+            <button type="button" className="ghost" onClick={onSaveApiKey} disabled={!apiKeyDraft || saving}>
+              保存密钥
+            </button>
+          </div>
+        </div>
+
+        <label className="field-row tall">
+          <span className="field-label">System Prompt</span>
+          <textarea
+            className="text-input textarea"
+            value={config.systemPrompt}
+            onChange={(event) => onChange({ systemPrompt: event.target.value })}
+          />
+        </label>
+      </div>
+
+      {status ? <div className="status-line">{status}</div> : null}
+
+      <div className="chat-panel">
+        <div className="chat-transcript" aria-live="polite">
+          {chatMessages.length === 0 ? (
+            <div className="empty-chat">暂无对话</div>
+          ) : chatMessages.map((message, index) => (
+            <div className={`chat-message ${message.role}`} key={`${message.role}-${index}`}>
+              <strong>{message.role === 'user' ? 'You' : 'Pet'}</strong>
+              <span>{message.content}</span>
+            </div>
+          ))}
+        </div>
+        <div className="chat-input-row">
+          <input
+            className="text-input"
+            value={chatDraft}
+            placeholder="说点什么"
+            onChange={(event) => setChatDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') onSendChat()
+            }}
+          />
+          <button type="button" className="primary" onClick={onSendChat} disabled={!chatDraft.trim() || chatting}>
+            {chatting ? '发送中' : '发送'}
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function PlaceholderPane({ title, rows }) {
   return (
     <section className="pane">
@@ -177,16 +322,23 @@ function App() {
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState(defaultSettings)
   const [originalSettings, setOriginalSettings] = useState(defaultSettings)
+  const [aiConfig, setAiConfig] = useState(defaultAiConfig)
+  const [apiKeyDraft, setApiKeyDraft] = useState('')
+  const [aiStatus, setAiStatus] = useState('')
+  const [chatDraft, setChatDraft] = useState('')
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatting, setChatting] = useState(false)
   const originalRef = useRef(defaultSettings)
 
   useEffect(() => {
     let mounted = true
-    api.getSettings().then((loadedSettings) => {
+    Promise.all([api.getSettings(), api.getAiConfig()]).then(([loadedSettings, loadedAiConfig]) => {
       if (!mounted) return
       const nextSettings = cloneSettings(loadedSettings)
       originalRef.current = nextSettings
       setSettings(nextSettings)
       setOriginalSettings(nextSettings)
+      setAiConfig(cloneAiConfig(loadedAiConfig))
       setLoading(false)
     })
     return () => { mounted = false }
@@ -228,17 +380,82 @@ function App() {
     }
     if (activeTab === 'actions') {
       return <PlaceholderPane title="Actions" rows={[
-        { label: '动作帧导入', value: 'Phase 4' },
+        { label: '动作帧导入', value: '待接入' },
         { label: 'Pet pack', value: '已定义' },
         { label: '预览器', value: '待接入' }
       ]} />
     }
     if (activeTab === 'ai') {
-      return <PlaceholderPane title="AI" rows={[
-        { label: 'Provider', value: '待配置' },
-        { label: 'API Key', value: '未保存' },
-        { label: '聊天', value: '未启用' }
-      ]} />
+      return (
+        <AiSettings
+          config={aiConfig}
+          saving={saving}
+          status={aiStatus}
+          apiKeyDraft={apiKeyDraft}
+          setApiKeyDraft={setApiKeyDraft}
+          chatDraft={chatDraft}
+          setChatDraft={setChatDraft}
+          chatMessages={chatMessages}
+          chatting={chatting}
+          onChange={(partial) => setAiConfig({ ...aiConfig, ...partial })}
+          onSave={async () => {
+            setSaving(true)
+            setAiStatus('')
+            try {
+              const savedConfig = cloneAiConfig(await api.saveAiConfig(aiConfig))
+              setAiConfig(savedConfig)
+              setAiStatus('AI 配置已保存')
+            } catch (error) {
+              setAiStatus(error.message || '保存失败')
+            } finally {
+              setSaving(false)
+            }
+          }}
+          onSaveApiKey={async () => {
+            setSaving(true)
+            setAiStatus('')
+            try {
+              const result = await api.saveAiApiKey(apiKeyDraft)
+              setAiConfig({ ...aiConfig, hasApiKey: result.hasApiKey })
+              setApiKeyDraft('')
+              setAiStatus('API Key 已保存')
+            } catch (error) {
+              setAiStatus(error.message || '保存失败')
+            } finally {
+              setSaving(false)
+            }
+          }}
+          onTest={async () => {
+            setSaving(true)
+            setAiStatus('测试中')
+            try {
+              const result = await api.testAiConnection()
+              setAiStatus(result.ok ? `连接正常：${result.reply}` : '连接失败')
+            } catch (error) {
+              setAiStatus(error.message || '连接失败')
+            } finally {
+              setSaving(false)
+            }
+          }}
+          onSendChat={async () => {
+            const message = chatDraft.trim()
+            if (!message || chatting) return
+            const nextMessages = [...chatMessages, { role: 'user', content: message }]
+            setChatMessages(nextMessages)
+            setChatDraft('')
+            setChatting(true)
+            setAiStatus('')
+            try {
+              const result = await api.chat({ conversationId: 'control-center', message })
+              setChatMessages([...nextMessages, { role: 'assistant', content: result.reply }])
+            } catch (error) {
+              setAiStatus(error.message || '发送失败')
+            } finally {
+              setChatting(false)
+            }
+          }}
+        />
+      )
     }
     if (activeTab === 'plugins') {
       return <PlaceholderPane title="Plugins" rows={[
@@ -256,10 +473,10 @@ function App() {
     }
     return <PlaceholderPane title="About" rows={[
       { label: 'Electron', value: '42.4.0' },
-      { label: 'Control Center', value: 'Phase 3' },
+      { label: 'Control Center', value: 'Phase 4' },
       { label: 'Runtime contract', value: 'Phase 2' }
     ]} />
-  }, [activeTab, originalSettings, saving, settings])
+  }, [activeTab, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, originalSettings, saving, settings])
 
   return (
     <main className="shell">

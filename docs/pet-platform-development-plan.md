@@ -21,7 +21,7 @@
 - Phase 1 Core service layer：已完成基础落地。
 - Phase 2 Runtime contract：已完成基础落地。
 - Phase 3 Control Center：已完成基础落地。
-- Phase 4 AI chat：未开始。
+- Phase 4 AI chat：已完成基础落地。
 - Phase 5 Plugin runtime：未开始。
 - Phase 6 Local HTTP/MCP：未开始。
 
@@ -78,6 +78,25 @@ Phase 3 当前范围：
 - Control Center 的 Pet 页面覆盖现有设置项：大小、散步速度、散步时长、气泡时长、开机自启。
 - Actions、AI、Plugins、Service、About 页面先保留结构化入口。
 - 尚未实现动作帧导入 UI、AI API Key UI、插件配置 UI 和本地 HTTP API。
+
+Phase 4 已新增：
+
+```text
+src/main/services/secret-service.js
+src/main/services/ai-service.js
+tests/services/secret-service.test.js
+tests/services/ai-service.test.js
+```
+
+Phase 4 当前范围：
+
+- 新增主进程 `SecretService`，API Key 只通过 `apiKeyRef` 关联，Control Center 和 renderer 不拿到明文。
+- 新增 provider-agnostic `AiService`，第一版实现 OpenAI-compatible `/chat/completions` 适配。
+- `settings.json` 只保存 AI 非敏感配置：enabled、provider、baseUrl、model、apiKeyRef、systemPrompt。
+- Control Center 的 AI 页面支持配置保存、API Key 保存、连接测试和简单聊天。
+- AI 聊天支持 `conversationId` 维持主进程内存会话上下文。
+- AI 回复会通过 `pet:say` 推送给宠物窗口显示气泡。
+- 尚未把 AI 做成插件，也未接入动作语义触发；这部分留给 PluginRuntime 和行为编排阶段。
 
 ## 2. 参考方向
 
@@ -505,6 +524,12 @@ vite.config.js
 - 有连接测试。
 - 宠物右键菜单或 Control Center 可打开聊天。
 - AI 回复可以触发 `say` 和动作。
+
+当前落地：
+
+- 已实现 Control Center 聊天入口。
+- 已实现 `say` 气泡触发。
+- 动作触发待 Phase 5/行为编排接入。
 
 ### Phase 5: Plugin runtime
 

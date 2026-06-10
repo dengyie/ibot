@@ -23,7 +23,7 @@ const sendToPetWindow = (getPetWindow, channel, data) => {
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, petService, applyWindowScale,
+const registerIpcHandlers = ({ getPetWindow, petService, aiService, applyWindowScale,
   clampToWorkArea, getMovementState, createSettingsWindow }) => {
 
   // 渲染进程启动时请求动作列表（通过 preload 暴露的 getAnimations 调用）
@@ -77,6 +77,20 @@ const registerIpcHandlers = ({ getPetWindow, petService, applyWindowScale,
     sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, savedSettings)
     applyWindowScale(getPetWindow(), savedSettings.scale)
     return savedSettings
+  })
+
+  ipcMain.handle(IPC.AI_GET_CONFIG, () => aiService.getConfig())
+
+  ipcMain.handle(IPC.AI_SAVE_CONFIG, (_event, config) => aiService.saveConfig(config))
+
+  ipcMain.handle(IPC.AI_SAVE_API_KEY, (_event, apiKey) => aiService.saveApiKey(apiKey))
+
+  ipcMain.handle(IPC.AI_TEST_CONNECTION, () => aiService.testConnection())
+
+  ipcMain.handle(IPC.AI_CHAT, async (_event, payload) => {
+    const result = await aiService.chat(payload)
+    sendToPetWindow(getPetWindow, IPC.PET_SAY, { text: result.reply })
+    return result
   })
 
   // 设置面板拖动滑块：实时预览缩放（不持久化）

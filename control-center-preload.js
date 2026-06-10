@@ -10,12 +10,22 @@ const IPC = {
   SETTINGS_GET: 'settings:get',
   SETTINGS_SAVE: 'settings:save',
   SETTINGS_PREVIEW_SCALE: 'settings:preview-scale',
-  SETTINGS_CLOSE: 'settings:close'
+  SETTINGS_CLOSE: 'settings:close',
+  AI_GET_CONFIG: 'ai:get-config',
+  AI_SAVE_CONFIG: 'ai:save-config',
+  AI_SAVE_API_KEY: 'ai:save-api-key',
+  AI_TEST_CONNECTION: 'ai:test-connection',
+  AI_CHAT: 'ai:chat'
 }
 
 contextBridge.exposeInMainWorld('controlCenterAPI', {
   getSettings: () => ipcRenderer.invoke(IPC.SETTINGS_GET),
   saveSettings: (settings) => ipcRenderer.invoke(IPC.SETTINGS_SAVE, settings),
   previewScale: (scale) => ipcRenderer.send(IPC.SETTINGS_PREVIEW_SCALE, scale),
+  getAiConfig: () => ipcRenderer.invoke(IPC.AI_GET_CONFIG),
+  saveAiConfig: (config) => ipcRenderer.invoke(IPC.AI_SAVE_CONFIG, config),
+  saveAiApiKey: (apiKey) => ipcRenderer.invoke(IPC.AI_SAVE_API_KEY, apiKey),
+  testAiConnection: () => ipcRenderer.invoke(IPC.AI_TEST_CONNECTION),
+  chat: (payload) => ipcRenderer.invoke(IPC.AI_CHAT, payload),
   close: () => ipcRenderer.send(IPC.SETTINGS_CLOSE)
 })
