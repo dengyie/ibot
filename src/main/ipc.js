@@ -23,11 +23,11 @@ const sendToPetWindow = (getPetWindow, channel, data) => {
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, loadSettings, saveSettings, applyWindowScale,
-  getPetAnimations, clampToWorkArea, getMovementState, createSettingsWindow }) => {
+const registerIpcHandlers = ({ getPetWindow, petService, applyWindowScale,
+  clampToWorkArea, getMovementState, createSettingsWindow }) => {
 
   // 渲染进程启动时请求动作列表（通过 preload 暴露的 getAnimations 调用）
-  ipcMain.handle(IPC.PET_GET_ANIMATIONS, () => getPetAnimations())
+  ipcMain.handle(IPC.PET_GET_ANIMATIONS, () => petService.getAnimations())
 
   // 拖拽开始时读取窗口位置，用于计算鼠标偏移
   ipcMain.handle(IPC.PET_GET_BOUNDS, (event) => {
@@ -69,17 +69,19 @@ const registerIpcHandlers = ({ getPetWindow, loadSettings, saveSettings, applyWi
   })
 
   // 设置面板启动时读取当前设置
-  ipcMain.handle(IPC.SETTINGS_GET, () => loadSettings())
+  ipcMain.handle(IPC.SETTINGS_GET, () => petService.getSettings())
 
   // 设置面板点击"保存"：持久化并通知宠物窗口应用变更
   ipcMain.handle(IPC.SETTINGS_SAVE, (_event, settings) => {
-    saveSettings(settings)
-    sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, settings)
-    applyWindowScale(getPetWindow(), settings.scale)
+    const savedSettings = petService.saveSettings(settings)
+    sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, savedSettings)
+    applyWindowScale(getPetWindow(), savedSettings.scale)
+    return savedSettings
   })
 
   // 设置面板拖动滑块：实时预览缩放（不持久化）
   ipcMain.on(IPC.SETTINGS_PREVIEW_SCALE, (_event, scale) => {
+    petService.previewSettings({ scale })
     applyWindowScale(getPetWindow(), scale)
     sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, { scale })
   })

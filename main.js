@@ -9,11 +9,15 @@
  */
 const { app, BrowserWindow } = require('electron')
 const { IPC } = require('./src/shared/ipc-channels')
-const { loadSettings, saveSettings } = require('./src/main/settings')
+const { loadSettings, saveSettings, syncLoginItemSettings } = require('./src/main/settings')
 const { clampToWorkArea, getMovementState } = require('./src/main/screen')
 const { getPetAnimations } = require('./src/main/animations')
 const { applyWindowScale, createWindow, createSettingsWindow } = require('./src/main/window')
 const { registerIpcHandlers } = require('./src/main/ipc')
+const { createEventBus } = require('./src/main/services/event-bus')
+const { createSettingsService } = require('./src/main/services/settings-service')
+const { createActionService } = require('./src/main/services/action-service')
+const { createPetService } = require('./src/main/services/pet-service')
 
 let petWindow = null
 const getPetWindow = () => petWindow
@@ -33,15 +37,18 @@ if (!gotTheLock) {
 
 // ── 应用就绪 ──
 app.whenReady().then(() => {
-  app.setLoginItemSettings({ openAtLogin: loadSettings().autoStart })
+  const eventBus = createEventBus()
+  const settingsService = createSettingsService({ eventBus, loadSettings, saveSettings })
+  const actionService = createActionService({ getPetAnimations })
+  const petService = createPetService({ settingsService, actionService })
+
+  syncLoginItemSettings(petService.getSettings().autoStart)
 
   // 注册 IPC 处理器（依赖注入：主模块只负责"连接"，不负责"实现"）
   registerIpcHandlers({
     getPetWindow,
-    loadSettings,
-    saveSettings,
+    petService,
     applyWindowScale: (scale) => applyWindowScale(petWindow, scale),
-    getPetAnimations,
     clampToWorkArea,
     getMovementState,
     createSettingsWindow: () => createSettingsWindow(petWindow)
@@ -51,7 +58,7 @@ app.whenReady().then(() => {
 
   // 页面加载完成后推送初始设置到渲染进程
   petWindow.webContents.on('did-finish-load', () => {
-    const settings = loadSettings()
+    const settings = petService.getSettings()
     applyWindowScale(petWindow, settings.scale)
     petWindow.webContents.send(IPC.SETTINGS_CHANGED, settings)
   })

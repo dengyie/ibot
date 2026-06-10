@@ -4,10 +4,11 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "generate-sprites": "node scripts/generate-sprites.js"
+    "generate-sprites": "node scripts/generate-sprites.js",
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "devDependencies": {
-    "electron": "^28.1.0",
+    "electron": "^42.4.0",
     "sharp": "^0.34.5"
   }
 }

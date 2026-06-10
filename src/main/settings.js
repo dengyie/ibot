@@ -21,6 +21,12 @@ const defaultSettings = {
   autoStart: false       // 是否开机自启
 }
 
+const syncLoginItemSettings = (autoStart) => {
+  // macOS 开发态 Electron 未打包成 .app 时设置登录项会报权限错误；打包后再同步系统设置。
+  if (process.platform === 'darwin' && !app.isPackaged) return
+  app.setLoginItemSettings({ openAtLogin: autoStart })
+}
+
 /**
  * 从磁盘读取设置，与默认值合并后返回。
  * 文件不存在或损坏时静默回退到默认值，不阻塞启动。
@@ -39,7 +45,7 @@ const loadSettings = () => {
  */
 const saveSettings = (settings) => {
   fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
-  app.setLoginItemSettings({ openAtLogin: settings.autoStart })
+  syncLoginItemSettings(settings.autoStart)
 }
 
-module.exports = { settingsPath, defaultSettings, loadSettings, saveSettings }
+module.exports = { settingsPath, defaultSettings, loadSettings, saveSettings, syncLoginItemSettings }
