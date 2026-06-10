@@ -22,7 +22,10 @@ const IPC = {
   AI_SAVE_CONFIG: 'ai:save-config',
   AI_SAVE_API_KEY: 'ai:save-api-key',
   AI_TEST_CONNECTION: 'ai:test-connection',
-  AI_CHAT: 'ai:chat'
+  AI_CHAT: 'ai:chat',
+  PLUGINS_LIST: 'plugins:list',
+  PLUGINS_SET_ENABLED: 'plugins:set-enabled',
+  PLUGINS_RUN_COMMAND: 'plugins:run-command'
 }
 
 module.exports = { IPC }

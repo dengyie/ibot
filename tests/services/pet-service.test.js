@@ -55,3 +55,28 @@ test('pet service delegates settings and action operations', () => {
     ['preview', { scale: 1.4 }]
   ])
 })
+
+test('pet service emits say events through the runtime event bus', () => {
+  const events = []
+  const service = createPetService({
+    eventBus: {
+      emit: (eventName, payload) => events.push([eventName, payload])
+    },
+    settingsService: {
+      get: () => ({ scale: 1 })
+    },
+    actionService: {
+      getConfig: () => ({ defaultAction: 'idle', clickAction: 'idle', actions: [] })
+    }
+  })
+
+  assert.deepEqual(service.say({ text: 'hi', source: 'test' }), {
+    text: 'hi',
+    ttlMs: undefined,
+    source: 'test'
+  })
+  assert.deepEqual(events, [[
+    'pet:say',
+    { text: 'hi', ttlMs: undefined, source: 'test' }
+  ]])
+})

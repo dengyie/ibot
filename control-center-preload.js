@@ -15,7 +15,10 @@ const IPC = {
   AI_SAVE_CONFIG: 'ai:save-config',
   AI_SAVE_API_KEY: 'ai:save-api-key',
   AI_TEST_CONNECTION: 'ai:test-connection',
-  AI_CHAT: 'ai:chat'
+  AI_CHAT: 'ai:chat',
+  PLUGINS_LIST: 'plugins:list',
+  PLUGINS_SET_ENABLED: 'plugins:set-enabled',
+  PLUGINS_RUN_COMMAND: 'plugins:run-command'
 }
 
 contextBridge.exposeInMainWorld('controlCenterAPI', {
@@ -27,5 +30,8 @@ contextBridge.exposeInMainWorld('controlCenterAPI', {
   saveAiApiKey: (apiKey) => ipcRenderer.invoke(IPC.AI_SAVE_API_KEY, apiKey),
   testAiConnection: () => ipcRenderer.invoke(IPC.AI_TEST_CONNECTION),
   chat: (payload) => ipcRenderer.invoke(IPC.AI_CHAT, payload),
+  getPlugins: () => ipcRenderer.invoke(IPC.PLUGINS_LIST),
+  setPluginEnabled: (pluginId, enabled) => ipcRenderer.invoke(IPC.PLUGINS_SET_ENABLED, { pluginId, enabled }),
+  runPluginCommand: (pluginId, commandId, payload) => ipcRenderer.invoke(IPC.PLUGINS_RUN_COMMAND, { pluginId, commandId, payload }),
   close: () => ipcRenderer.send(IPC.SETTINGS_CLOSE)
 })

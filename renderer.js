@@ -274,7 +274,7 @@ window.petAPI.onSettingsChanged((s) => {
 })
 
 window.petAPI.onPetSay((payload) => {
-  if (payload?.text) say(payload.text)
+  if (payload?.text) say(payload.text, payload.ttlMs)
 })
 
 // DOM 事件绑定

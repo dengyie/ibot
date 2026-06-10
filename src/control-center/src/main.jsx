@@ -57,6 +57,9 @@ const api = window.controlCenterAPI || {
   saveAiApiKey: async () => ({ apiKeyRef: 'ai.default', hasApiKey: true }),
   testAiConnection: async () => ({ ok: true, reply: 'ok' }),
   chat: async ({ message }) => ({ reply: `Echo: ${message}` }),
+  getPlugins: async () => [],
+  setPluginEnabled: async (pluginId, enabled) => ({ id: pluginId, enabled }),
+  runPluginCommand: async () => ({ ok: true }),
   close: () => {}
 }
 
@@ -295,6 +298,63 @@ function AiSettings({
   )
 }
 
+function PluginsPane({ plugins, status, runningCommand, onToggle, onRun }) {
+  return (
+    <section className="pane">
+      <header className="pane-header">
+        <div>
+          <h1>Plugins</h1>
+          <p>插件权限与官方命令</p>
+        </div>
+      </header>
+
+      <div className="plugin-list">
+        {plugins.length === 0 ? (
+          <div className="empty-chat">暂无插件</div>
+        ) : plugins.map((plugin) => (
+          <div className="plugin-row" key={plugin.id}>
+            <div className="plugin-main">
+              <div className="plugin-title">
+                <strong>{plugin.name}</strong>
+                <span>{plugin.source}</span>
+              </div>
+              <div className="plugin-meta">
+                <span>{plugin.id}</span>
+                <span>{plugin.version}</span>
+                <span>{plugin.runnable ? '可运行' : '仅展示'}</span>
+              </div>
+              <div className="permission-line">
+                {(plugin.permissions || []).length === 0 ? '无权限' : plugin.permissions.join(' · ')}
+              </div>
+              {plugin.commands?.length ? (
+                <div className="plugin-commands">
+                  {plugin.commands.map((command) => {
+                    const commandKey = `${plugin.id}:${command.id}`
+                    return (
+                      <button
+                        type="button"
+                        className="ghost"
+                        key={command.id}
+                        disabled={!plugin.enabled || !plugin.runnable || runningCommand === commandKey}
+                        onClick={() => onRun(plugin.id, command.id)}
+                      >
+                        {runningCommand === commandKey ? '运行中' : command.title}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : null}
+            </div>
+            <Toggle checked={plugin.enabled} onChange={(enabled) => onToggle(plugin.id, enabled)} />
+          </div>
+        ))}
+      </div>
+
+      {status ? <div className="status-line">{status}</div> : null}
+    </section>
+  )
+}
+
 function PlaceholderPane({ title, rows }) {
   return (
     <section className="pane">
@@ -328,17 +388,21 @@ function App() {
   const [chatDraft, setChatDraft] = useState('')
   const [chatMessages, setChatMessages] = useState([])
   const [chatting, setChatting] = useState(false)
+  const [plugins, setPlugins] = useState([])
+  const [pluginStatus, setPluginStatus] = useState('')
+  const [runningCommand, setRunningCommand] = useState('')
   const originalRef = useRef(defaultSettings)
 
   useEffect(() => {
     let mounted = true
-    Promise.all([api.getSettings(), api.getAiConfig()]).then(([loadedSettings, loadedAiConfig]) => {
+    Promise.all([api.getSettings(), api.getAiConfig(), api.getPlugins()]).then(([loadedSettings, loadedAiConfig, loadedPlugins]) => {
       if (!mounted) return
       const nextSettings = cloneSettings(loadedSettings)
       originalRef.current = nextSettings
       setSettings(nextSettings)
       setOriginalSettings(nextSettings)
       setAiConfig(cloneAiConfig(loadedAiConfig))
+      setPlugins(loadedPlugins)
       setLoading(false)
     })
     return () => { mounted = false }
@@ -458,11 +522,38 @@ function App() {
       )
     }
     if (activeTab === 'plugins') {
-      return <PlaceholderPane title="Plugins" rows={[
-        { label: '已安装', value: '0' },
-        { label: '权限模型', value: '待接入' },
-        { label: '官方插件', value: '待接入' }
-      ]} />
+      return (
+        <PluginsPane
+          plugins={plugins}
+          status={pluginStatus}
+          runningCommand={runningCommand}
+          onToggle={async (pluginId, enabled) => {
+            setPluginStatus('')
+            try {
+              const updatedPlugin = await api.setPluginEnabled(pluginId, enabled)
+              setPlugins(plugins.map((plugin) => (
+                plugin.id === pluginId ? { ...plugin, ...updatedPlugin } : plugin
+              )))
+              setPluginStatus(enabled ? '插件已启用' : '插件已停用')
+            } catch (error) {
+              setPluginStatus(error.message || '插件状态更新失败')
+            }
+          }}
+          onRun={async (pluginId, commandId) => {
+            const commandKey = `${pluginId}:${commandId}`
+            setRunningCommand(commandKey)
+            setPluginStatus('')
+            try {
+              await api.runPluginCommand(pluginId, commandId)
+              setPluginStatus('命令已运行')
+            } catch (error) {
+              setPluginStatus(error.message || '命令运行失败')
+            } finally {
+              setRunningCommand('')
+            }
+          }}
+        />
+      )
     }
     if (activeTab === 'service') {
       return <PlaceholderPane title="Service" rows={[
@@ -473,10 +564,10 @@ function App() {
     }
     return <PlaceholderPane title="About" rows={[
       { label: 'Electron', value: '42.4.0' },
-      { label: 'Control Center', value: 'Phase 4' },
+      { label: 'Control Center', value: 'Phase 5' },
       { label: 'Runtime contract', value: 'Phase 2' }
     ]} />
-  }, [activeTab, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, originalSettings, saving, settings])
+  }, [activeTab, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, originalSettings, pluginStatus, plugins, runningCommand, saving, settings])
 
   return (
     <main className="shell">

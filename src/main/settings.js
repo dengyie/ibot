@@ -26,6 +26,11 @@ const defaultSettings = {
     model: 'gpt-4o-mini',
     apiKeyRef: 'ai.default',
     systemPrompt: 'You are a friendly desktop pet companion.'
+  },
+  plugins: {
+    enabled: {
+      'official.basic-behavior': true
+    }
   }
 }
 
@@ -35,6 +40,14 @@ const mergeSettings = (settings = {}) => ({
   ai: {
     ...defaultSettings.ai,
     ...(settings.ai || {})
+  },
+  plugins: {
+    ...defaultSettings.plugins,
+    ...(settings.plugins || {}),
+    enabled: {
+      ...defaultSettings.plugins.enabled,
+      ...(settings.plugins?.enabled || {})
+    }
   }
 })
 

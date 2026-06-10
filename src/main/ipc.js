@@ -23,8 +23,11 @@ const sendToPetWindow = (getPetWindow, channel, data) => {
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, petService, aiService, applyWindowScale,
+const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, applyWindowScale,
   clampToWorkArea, getMovementState, createSettingsWindow }) => {
+  petService.onSay?.((payload) => {
+    sendToPetWindow(getPetWindow, IPC.PET_SAY, payload)
+  })
 
   // 渲染进程启动时请求动作列表（通过 preload 暴露的 getAnimations 调用）
   ipcMain.handle(IPC.PET_GET_ANIMATIONS, () => petService.getAnimations())
@@ -89,8 +92,18 @@ const registerIpcHandlers = ({ getPetWindow, petService, aiService, applyWindowS
 
   ipcMain.handle(IPC.AI_CHAT, async (_event, payload) => {
     const result = await aiService.chat(payload)
-    sendToPetWindow(getPetWindow, IPC.PET_SAY, { text: result.reply })
+    petService.say({ text: result.reply, source: 'ai' })
     return result
+  })
+
+  ipcMain.handle(IPC.PLUGINS_LIST, () => pluginService.listPlugins())
+
+  ipcMain.handle(IPC.PLUGINS_SET_ENABLED, (_event, payload) => {
+    return pluginService.setEnabled(payload.pluginId, payload.enabled)
+  })
+
+  ipcMain.handle(IPC.PLUGINS_RUN_COMMAND, (_event, payload) => {
+    return pluginService.runCommand(payload.pluginId, payload.commandId, payload.payload)
   })
 
   // 设置面板拖动滑块：实时预览缩放（不持久化）

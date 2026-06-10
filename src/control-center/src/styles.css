@@ -343,6 +343,62 @@ button {
   gap: 10px;
 }
 
+.plugin-list {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid #dde2e8;
+}
+
+.plugin-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 18px 0;
+  border-bottom: 1px solid #dde2e8;
+}
+
+.plugin-main {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.plugin-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.plugin-title strong {
+  font-size: 15px;
+}
+
+.plugin-title span,
+.plugin-meta,
+.permission-line {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.plugin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.permission-line {
+  overflow-wrap: anywhere;
+}
+
+.plugin-commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .loading {
   display: grid;
   place-items: center;
@@ -374,5 +430,9 @@ button {
 
   .inline-action {
     display: grid;
+  }
+
+  .plugin-row {
+    grid-template-columns: 1fr;
   }
 }

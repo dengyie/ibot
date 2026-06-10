@@ -22,7 +22,7 @@
 - Phase 2 Runtime contract：已完成基础落地。
 - Phase 3 Control Center：已完成基础落地。
 - Phase 4 AI chat：已完成基础落地。
-- Phase 5 Plugin runtime：未开始。
+- Phase 5 Plugin runtime：已完成基础落地。
 - Phase 6 Local HTTP/MCP：未开始。
 
 Phase 1 已新增：
@@ -97,6 +97,28 @@ Phase 4 当前范围：
 - AI 聊天支持 `conversationId` 维持主进程内存会话上下文。
 - AI 回复会通过 `pet:say` 推送给宠物窗口显示气泡。
 - 尚未把 AI 做成插件，也未接入动作语义触发；这部分留给 PluginRuntime 和行为编排阶段。
+
+Phase 5 已新增：
+
+```text
+src/main/plugins/manifest.js
+src/main/plugins/official/basic-behavior.js
+src/main/services/plugin-service.js
+tests/plugins/manifest.test.js
+tests/services/plugin-service.test.js
+```
+
+Phase 5 当前范围：
+
+- 定义插件 manifest 归一化与权限白名单。
+- 支持扫描用户数据目录下的本地插件 manifest：`<userData>/plugins/<plugin-id>/plugin.json`。
+- 本地第三方插件第一版只发现和展示，不执行任意 JS。
+- 新增官方 `Basic Behavior` 插件，用受限 SDK 验证 `ctx.pet.say()` 命令链路。
+- 插件启用状态保存到 `settings.plugins.enabled`，可在 Control Center 的 Plugins 页启停。
+- Control Center 的 Plugins 页显示插件来源、权限、命令，并可运行官方插件命令。
+- 坏的本地 manifest 会被隔离跳过，不阻塞其他插件加载。
+- `PetService.say()` 成为 AI 和插件触发气泡的统一入口。
+- 尚未实现第三方插件沙箱、配置 schema 表单、插件日志面板和插件存储。
 
 ## 2. 参考方向
 
@@ -542,6 +564,13 @@ vite.config.js
 - 可显示权限和配置 schema。
 - 插件错误隔离。
 - 先运行一个官方插件验证 SDK。
+
+当前落地：
+
+- 已实现 manifest 发现和权限白名单。
+- 已实现官方插件命令运行。
+- 已实现 Control Center 插件启停和命令运行 UI。
+- 第三方插件 JS 执行待隔离 runtime 后再开放。
 
 ### Phase 6: Local HTTP/MCP
 

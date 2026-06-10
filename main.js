@@ -8,6 +8,7 @@
  * 不包含：窗口创建细节、IPC 处理、设置读写、屏幕计算 —— 均在 src/main/ 中。
  */
 const { app, BrowserWindow } = require('electron')
+const path = require('path')
 const { IPC } = require('./src/shared/ipc-channels')
 const { loadSettings, saveSettings, syncLoginItemSettings } = require('./src/main/settings')
 const { clampToWorkArea, getMovementState } = require('./src/main/screen')
@@ -20,6 +21,8 @@ const { createActionService } = require('./src/main/services/action-service')
 const { createPetService } = require('./src/main/services/pet-service')
 const { createSecretService } = require('./src/main/services/secret-service')
 const { createAiService } = require('./src/main/services/ai-service')
+const { createPluginService } = require('./src/main/services/plugin-service')
+const { createBasicBehaviorPlugin } = require('./src/main/plugins/official/basic-behavior')
 
 let petWindow = null
 const getPetWindow = () => petWindow
@@ -42,9 +45,15 @@ app.whenReady().then(() => {
   const eventBus = createEventBus()
   const settingsService = createSettingsService({ eventBus, loadSettings, saveSettings })
   const actionService = createActionService({ getPetAnimations })
-  const petService = createPetService({ settingsService, actionService })
+  const petService = createPetService({ eventBus, settingsService, actionService })
   const secretService = createSecretService()
   const aiService = createAiService({ settingsService, secretService })
+  const pluginService = createPluginService({
+    settingsService,
+    petService,
+    pluginDirs: [path.join(app.getPath('userData'), 'plugins')],
+    officialPlugins: [createBasicBehaviorPlugin()]
+  })
 
   syncLoginItemSettings(petService.getSettings().autoStart)
 
@@ -53,6 +62,7 @@ app.whenReady().then(() => {
     getPetWindow,
     petService,
     aiService,
+    pluginService,
     applyWindowScale: (scale) => applyWindowScale(petWindow, scale),
     clampToWorkArea,
     getMovementState,
