@@ -34,6 +34,7 @@ const IPC = {
   AI_CHAT: 'ai:chat',
   PLUGINS_LIST: 'plugins:list',
   PLUGINS_SET_ENABLED: 'plugins:set-enabled',
+  PLUGINS_SAVE_CONFIG: 'plugins:save-config',
   PLUGINS_RUN_COMMAND: 'plugins:run-command',
   PLUGINS_GET_LOGS: 'plugins:get-logs',
   PLUGINS_CLEAR_LOGS: 'plugins:clear-logs',

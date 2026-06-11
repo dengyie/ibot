@@ -106,6 +106,7 @@ const api = window.controlCenterAPI || {
   chat: async ({ message }) => ({ reply: `Echo: ${message}` }),
   getPlugins: async () => [],
   setPluginEnabled: async (pluginId, enabled) => ({ id: pluginId, enabled }),
+  savePluginConfig: async (pluginId, config) => ({ id: pluginId, config }),
   runPluginCommand: async () => ({ ok: true }),
   getPluginLogs: async () => [],
   clearPluginLogs: async () => [],
@@ -609,7 +610,7 @@ function ActionsPane({
   )
 }
 
-function PluginsPane({ plugins, logs, status, runningCommand, onToggle, onRun, onClearLogs }) {
+function PluginsPane({ plugins, logs, status, runningCommand, savingConfig, onToggle, onChangeConfig, onSaveConfig, onRun, onClearLogs }) {
   return (
     <section className="pane">
       <header className="pane-header">
@@ -653,6 +654,59 @@ function PluginsPane({ plugins, logs, status, runningCommand, onToggle, onRun, o
                       </button>
                     )
                   })}
+                </div>
+              ) : null}
+              {plugin.configSchema?.properties?.length ? (
+                <div className="plugin-config-panel">
+                  <div className="plugin-config-header">
+                    <strong>{plugin.configSchema.title || '配置'}</strong>
+                    <button
+                      type="button"
+                      className="ghost"
+                      disabled={savingConfig === plugin.id}
+                      onClick={() => onSaveConfig(plugin.id)}
+                    >
+                      {savingConfig === plugin.id ? '保存中' : '保存配置'}
+                    </button>
+                  </div>
+                  {plugin.configSchema.description ? (
+                    <div className="field-note">{plugin.configSchema.description}</div>
+                  ) : null}
+                  <div className="plugin-config-grid">
+                    {plugin.configSchema.properties.map((field) => {
+                      const value = plugin.config?.[field.key]
+                      const selectedEnumIndex = field.enum?.findIndex((option) => option === value)
+                      return (
+                        <label className="plugin-config-field" key={field.key}>
+                          <span>
+                            {field.title || field.key}
+                            {field.required ? <em>必填</em> : null}
+                          </span>
+                          {field.enum?.length ? (
+                            <select
+                              className="text-input"
+                              value={selectedEnumIndex >= 0 ? selectedEnumIndex : ''}
+                              onChange={(event) => onChangeConfig(plugin.id, field.key, field.enum[Number(event.target.value)])}
+                            >
+                              {field.enum.map((option, index) => (
+                                <option value={index} key={String(option)}>{String(option)}</option>
+                              ))}
+                            </select>
+                          ) : field.type === 'boolean' ? (
+                            <Toggle checked={Boolean(value)} onChange={(nextValue) => onChangeConfig(plugin.id, field.key, nextValue)} />
+                          ) : (
+                            <input
+                              className="text-input"
+                              type={field.type === 'number' ? 'number' : 'text'}
+                              value={value ?? ''}
+                              onChange={(event) => onChangeConfig(plugin.id, field.key, event.target.value)}
+                            />
+                          )}
+                          {field.description ? <small>{field.description}</small> : null}
+                        </label>
+                      )
+                    })}
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -807,6 +861,7 @@ function App() {
   const [pluginLogs, setPluginLogs] = useState([])
   const [pluginStatus, setPluginStatus] = useState('')
   const [runningCommand, setRunningCommand] = useState('')
+  const [savingPluginConfig, setSavingPluginConfig] = useState('')
   const [serviceStatus, setServiceStatus] = useState(defaultServiceStatus)
   const [serviceMessage, setServiceMessage] = useState('')
   const originalRef = useRef(defaultSettings)
@@ -1077,6 +1132,7 @@ function App() {
           logs={pluginLogs}
           status={pluginStatus}
           runningCommand={runningCommand}
+          savingConfig={savingPluginConfig}
           onToggle={async (pluginId, enabled) => {
             setPluginStatus('')
             try {
@@ -1089,6 +1145,32 @@ function App() {
             } catch (error) {
               setPluginStatus(error.message || '插件状态更新失败')
               setPluginLogs(await api.getPluginLogs())
+            }
+          }}
+          onChangeConfig={(pluginId, key, value) => {
+            setPlugins(plugins.map((plugin) => (
+              plugin.id === pluginId
+                ? { ...plugin, config: { ...(plugin.config || {}), [key]: value } }
+                : plugin
+            )))
+          }}
+          onSaveConfig={async (pluginId) => {
+            const plugin = plugins.find((candidate) => candidate.id === pluginId)
+            if (!plugin) return
+            setSavingPluginConfig(pluginId)
+            setPluginStatus('')
+            try {
+              const updatedPlugin = await api.savePluginConfig(pluginId, plugin.config || {})
+              setPlugins(plugins.map((candidate) => (
+                candidate.id === pluginId ? { ...candidate, ...updatedPlugin } : candidate
+              )))
+              setPluginLogs(await api.getPluginLogs())
+              setPluginStatus('插件配置已保存')
+            } catch (error) {
+              setPluginStatus(error.message || '插件配置保存失败')
+              setPluginLogs(await api.getPluginLogs())
+            } finally {
+              setSavingPluginConfig('')
             }
           }}
           onRun={async (pluginId, commandId) => {
@@ -1150,7 +1232,7 @@ function App() {
       { label: 'Control Center', value: 'Phase 5' },
       { label: 'Runtime contract', value: 'Phase 2' }
     ]} />
-  }, [activeTab, actionStatus, actionWorking, actionsConfig, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, importDraft, importInspection, originalSettings, pluginLogs, pluginStatus, plugins, runningCommand, saving, serviceMessage, serviceStatus, settings])
+  }, [activeTab, actionStatus, actionWorking, actionsConfig, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, importDraft, importInspection, originalSettings, pluginLogs, pluginStatus, plugins, runningCommand, saving, savingPluginConfig, serviceMessage, serviceStatus, settings])
 
   return (
     <main className="shell">

@@ -19,7 +19,7 @@ npm run build:control-center
 
 Current result from post-remediation run:
 
-- `npm test`: 66 tests passing
+- `npm test`: 83 tests passing
 - `npm run check:syntax`: passing
 - `npm run build:control-center`: passing
 

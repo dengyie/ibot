@@ -208,6 +208,10 @@ const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginServic
     return pluginService.setEnabled(payload.pluginId, payload.enabled)
   })
 
+  ipcMain.handle(IPC.PLUGINS_SAVE_CONFIG, (_event, payload) => {
+    return pluginService.saveConfig(payload.pluginId, payload.config)
+  })
+
   ipcMain.handle(IPC.PLUGINS_RUN_COMMAND, (_event, payload) => {
     return pluginService.runCommand(payload.pluginId, payload.commandId, payload.payload)
   })

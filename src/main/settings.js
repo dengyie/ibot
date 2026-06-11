@@ -30,7 +30,9 @@ const defaultSettings = {
   plugins: {
     enabled: {
       'official.basic-behavior': true
-    }
+    },
+    config: {},
+    storage: {}
   },
   localHttp: {
     enabled: false,
@@ -53,6 +55,14 @@ const mergeSettings = (settings = {}) => ({
     enabled: {
       ...defaultSettings.plugins.enabled,
       ...(settings.plugins?.enabled || {})
+    },
+    config: {
+      ...defaultSettings.plugins.config,
+      ...(settings.plugins?.config || {})
+    },
+    storage: {
+      ...defaultSettings.plugins.storage,
+      ...(settings.plugins?.storage || {})
     }
   },
   localHttp: {

@@ -558,6 +558,61 @@ button {
   margin-top: 4px;
 }
 
+.plugin-config-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #dde2e8;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.plugin-config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plugin-config-header strong {
+  font-size: 13px;
+}
+
+.plugin-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.plugin-config-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.plugin-config-field > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.plugin-config-field em {
+  color: #6b7280;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.plugin-config-field small {
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .plugin-log-panel {
   display: grid;
   gap: 12px;
