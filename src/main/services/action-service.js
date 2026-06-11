@@ -21,15 +21,22 @@ const emptyPetPack = {
 }
 
 const createActionService = ({ getPetAnimations, loadPetPack }) => {
+  let cachedPetPack = null
+
   const getPetPack = () => {
+    if (cachedPetPack) return cachedPetPack
     try {
-      if (loadPetPack) return loadPetPack()
+      if (loadPetPack) {
+        cachedPetPack = loadPetPack()
+        return cachedPetPack
+      }
       if (getPetAnimations) {
-        return loadLegacyPetPack({
+        cachedPetPack = loadLegacyPetPack({
           id: 'legacy-cat',
           displayName: 'Legacy Cat',
           getPetAnimations
         })
+        return cachedPetPack
       }
     } catch (error) {
       console.error('Failed to load pet pack:', error)
@@ -50,7 +57,12 @@ const createActionService = ({ getPetAnimations, loadPetPack }) => {
 
   const getAction = (actionId) => listActions().find((action) => action.id === actionId) || null
 
-  return { getPetPack, getConfig, listActions, getAction }
+  const reload = () => {
+    cachedPetPack = null
+    return getConfig()
+  }
+
+  return { getPetPack, getConfig, listActions, getAction, reload }
 }
 
 module.exports = { createActionService }

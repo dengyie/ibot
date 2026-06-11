@@ -23,6 +23,7 @@ const { createSecretService } = require('./src/main/services/secret-service')
 const { createAiService } = require('./src/main/services/ai-service')
 const { createPluginService } = require('./src/main/services/plugin-service')
 const { createLocalHttpService } = require('./src/main/services/local-http-service')
+const { createActionImportService } = require('./src/main/services/action-import-service')
 const { createBasicBehaviorPlugin } = require('./src/main/plugins/official/basic-behavior')
 
 let petWindow = null
@@ -50,6 +51,11 @@ app.whenReady().then(() => {
   const secretService = createSecretService()
   const aiService = createAiService({ settingsService, secretService })
   const localHttpService = createLocalHttpService({ petService })
+  const actionImportService = createActionImportService({
+    framesRoot: path.join(__dirname, 'cat_anime', 'flames'),
+    spritesDir: path.join(__dirname, 'cat_anime', 'sprites'),
+    configPath: path.join(__dirname, 'cat_anime', 'animations.json')
+  })
   const pluginService = createPluginService({
     settingsService,
     petService,
@@ -72,6 +78,7 @@ app.whenReady().then(() => {
     aiService,
     pluginService,
     localHttpService,
+    actionImportService,
     applyWindowScale: (scale) => applyWindowScale(petWindow, scale),
     clampToWorkArea,
     getMovementState,

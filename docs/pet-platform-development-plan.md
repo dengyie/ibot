@@ -58,7 +58,7 @@ Phase 2 当前范围：
 - 支持从 pet pack 目录读取 `pet.json`。
 - 支持把当前 `cat_anime/animations.json` legacy 配置包装成 runtime pet pack。
 - `ActionService` 内部面向 pet pack，外部仍保持 renderer 需要的旧动画配置形状。
-- 尚未实现 Control Center 的动作帧导入 UI。
+- 已实现 Control Center 的动作帧导入 UI 基础版。
 
 Phase 3 已新增：
 
@@ -141,6 +141,25 @@ Phase 6 当前范围：
 - `PetService.playAction()` 会推送到宠物窗口切换动作。
 - `PetService.setEvent()` 第一版映射为气泡消息，后续可扩展为完整 runtime event。
 - MCP bridge 暂不实现，等本地 HTTP API 和插件权限模型更稳定后再接。
+
+Actions 导入已新增：
+
+```text
+src/main/services/sprite-generator.js
+src/main/services/action-import-service.js
+tests/services/sprite-generator.test.js
+tests/services/action-import-service.test.js
+```
+
+Actions 导入当前范围：
+
+- 将 `scripts/generate-sprites.js` 的核心逻辑抽成 `SpriteGenerator` 服务，CLI 和 UI 共用同一套生成规则。
+- Control Center 的 Actions 页面显示当前动作、默认动作、点击动作、帧数和尺寸。
+- 用户可填写 action id / 显示名称，点击导入后选择一个动作帧文件夹。
+- 导入会复制帧到 `cat_anime/flames/<action-id>/`，重新生成 `cat_anime/sprites/*.png` 和 `cat_anime/animations.json`。
+- 导入完成后主进程刷新 `ActionService` 缓存，并通知宠物窗口重新加载动作菜单和默认动作。
+- action id 只允许字母、数字、下划线和连字符，防止路径穿越。
+- 尚未实现动作删除、默认/点击动作 UI 配置、动作预览器和导入前逐帧校验报告。
 
 ## 2. 参考方向
 

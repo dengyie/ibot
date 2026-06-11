@@ -6,7 +6,7 @@
  * — 依赖通过参数注入而非直接 import，避免与 window/settings/screen 模块形成硬耦合。
  * — 修改或新增 IPC 通道时，只需改这一个文件 + shared/ipc-channels.js。
  */
-const { ipcMain, BrowserWindow, app } = require('electron')
+const { ipcMain, BrowserWindow, app, dialog } = require('electron')
 const { IPC } = require('../shared/ipc-channels')
 
 /**
@@ -23,7 +23,7 @@ const sendToPetWindow = (getPetWindow, channel, data) => {
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, localHttpService, applyWindowScale,
+const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, localHttpService, actionImportService, applyWindowScale,
   clampToWorkArea, getMovementState, createSettingsWindow }) => {
   petService.onSay?.((payload) => {
     sendToPetWindow(getPetWindow, IPC.PET_SAY, payload)
@@ -79,6 +79,25 @@ const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginServic
 
   // 设置面板启动时读取当前设置
   ipcMain.handle(IPC.SETTINGS_GET, () => petService.getSettings())
+
+  ipcMain.handle(IPC.ACTIONS_GET, () => petService.getAnimations())
+
+  ipcMain.handle(IPC.ACTIONS_IMPORT_FRAMES, async (_event, payload) => {
+    const selected = await dialog.showOpenDialog({
+      title: '选择动作帧文件夹',
+      properties: ['openDirectory']
+    })
+    if (selected.canceled || !selected.filePaths[0]) return { canceled: true }
+
+    const result = await actionImportService.importActionFrames({
+      sourceDir: selected.filePaths[0],
+      actionId: payload.actionId,
+      label: payload.label
+    })
+    const animations = petService.reloadAnimations()
+    sendToPetWindow(getPetWindow, IPC.PET_ANIMATIONS_CHANGED, animations)
+    return { canceled: false, result, animations }
+  })
 
   // 设置面板点击"保存"：持久化并通知宠物窗口应用变更
   ipcMain.handle(IPC.SETTINGS_SAVE, (_event, settings) => {

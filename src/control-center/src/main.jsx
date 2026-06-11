@@ -61,10 +61,18 @@ const defaultServiceStatus = {
   }
 }
 
+const defaultActionsConfig = {
+  defaultAction: '',
+  clickAction: '',
+  actions: []
+}
+
 const api = window.controlCenterAPI || {
   getSettings: async () => defaultSettings,
   saveSettings: async (settings) => settings,
   previewScale: () => {},
+  getActions: async () => defaultActionsConfig,
+  importActionFrames: async () => ({ canceled: true }),
   getAiConfig: async () => defaultAiConfig,
   saveAiConfig: async (config) => ({ ...defaultAiConfig, ...config }),
   saveAiApiKey: async () => ({ apiKeyRef: 'ai.default', hasApiKey: true }),
@@ -83,6 +91,11 @@ const cloneAiConfig = (config) => ({ ...defaultAiConfig, ...config })
 const cloneServiceStatus = (status) => ({
   config: { ...defaultServiceStatus.config, ...(status?.config || {}) },
   runtime: { ...defaultServiceStatus.runtime, ...(status?.runtime || {}) }
+})
+const cloneActionsConfig = (config) => ({
+  ...defaultActionsConfig,
+  ...config,
+  actions: Array.isArray(config?.actions) ? config.actions : []
 })
 
 function SegmentedControl({ label, value, options, onChange }) {
@@ -317,6 +330,76 @@ function AiSettings({
   )
 }
 
+function ActionsPane({ actionsConfig, importDraft, setImportDraft, status, importing, onImport }) {
+  return (
+    <section className="pane">
+      <header className="pane-header">
+        <div>
+          <h1>Actions</h1>
+          <p>动作帧导入与运行时动作</p>
+        </div>
+        <div className="header-actions">
+          <button type="button" className="primary" onClick={onImport} disabled={importing || !importDraft.actionId.trim()}>
+            {importing ? '导入中' : '选择文件夹导入'}
+          </button>
+        </div>
+      </header>
+
+      <div className="section">
+        <label className="field-row">
+          <span className="field-label">Action ID</span>
+          <input
+            className="text-input"
+            value={importDraft.actionId}
+            placeholder="wave"
+            onChange={(event) => setImportDraft({ ...importDraft, actionId: event.target.value })}
+          />
+        </label>
+
+        <label className="field-row">
+          <span className="field-label">显示名称</span>
+          <input
+            className="text-input"
+            value={importDraft.label}
+            placeholder="挥手"
+            onChange={(event) => setImportDraft({ ...importDraft, label: event.target.value })}
+          />
+        </label>
+
+        <div className="readonly-row">
+          <span>默认动作</span>
+          <strong>{actionsConfig.defaultAction || '未设置'}</strong>
+        </div>
+
+        <div className="readonly-row">
+          <span>点击动作</span>
+          <strong>{actionsConfig.clickAction || '未设置'}</strong>
+        </div>
+      </div>
+
+      <div className="action-list">
+        {actionsConfig.actions.length === 0 ? (
+          <div className="empty-chat">暂无动作</div>
+        ) : actionsConfig.actions.map((action) => (
+          <div className="action-row" key={action.id}>
+            <div>
+              <strong>{action.label}</strong>
+              <span>{action.id}</span>
+            </div>
+            <div className="action-meta">
+              <span>{action.frameCount} 帧</span>
+              <span>{action.frameWidth}x{action.frameHeight}</span>
+              <span>{action.loop ? '循环' : '单次'}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {status ? <div className="status-line">{status}</div> : null}
+    </section>
+  )
+}
+
 function PluginsPane({ plugins, status, runningCommand, onToggle, onRun }) {
   return (
     <section className="pane">
@@ -467,6 +550,10 @@ function App() {
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState(defaultSettings)
   const [originalSettings, setOriginalSettings] = useState(defaultSettings)
+  const [actionsConfig, setActionsConfig] = useState(defaultActionsConfig)
+  const [importDraft, setImportDraft] = useState({ actionId: '', label: '' })
+  const [actionStatus, setActionStatus] = useState('')
+  const [importing, setImporting] = useState(false)
   const [aiConfig, setAiConfig] = useState(defaultAiConfig)
   const [apiKeyDraft, setApiKeyDraft] = useState('')
   const [aiStatus, setAiStatus] = useState('')
@@ -484,15 +571,17 @@ function App() {
     let mounted = true
     Promise.all([
       api.getSettings(),
+      api.getActions(),
       api.getAiConfig(),
       api.getPlugins(),
       api.getServiceStatus()
-    ]).then(([loadedSettings, loadedAiConfig, loadedPlugins, loadedServiceStatus]) => {
+    ]).then(([loadedSettings, loadedActions, loadedAiConfig, loadedPlugins, loadedServiceStatus]) => {
       if (!mounted) return
       const nextSettings = cloneSettings(loadedSettings)
       originalRef.current = nextSettings
       setSettings(nextSettings)
       setOriginalSettings(nextSettings)
+      setActionsConfig(cloneActionsConfig(loadedActions))
       setAiConfig(cloneAiConfig(loadedAiConfig))
       setPlugins(loadedPlugins)
       setServiceStatus(cloneServiceStatus(loadedServiceStatus))
@@ -536,11 +625,32 @@ function App() {
       )
     }
     if (activeTab === 'actions') {
-      return <PlaceholderPane title="Actions" rows={[
-        { label: '动作帧导入', value: '待接入' },
-        { label: 'Pet pack', value: '已定义' },
-        { label: '预览器', value: '待接入' }
-      ]} />
+      return (
+        <ActionsPane
+          actionsConfig={actionsConfig}
+          importDraft={importDraft}
+          setImportDraft={setImportDraft}
+          status={actionStatus}
+          importing={importing}
+          onImport={async () => {
+            setImporting(true)
+            setActionStatus('')
+            try {
+              const response = await api.importActionFrames(importDraft)
+              if (response.canceled) {
+                setActionStatus('已取消导入')
+              } else {
+                setActionsConfig(cloneActionsConfig(response.animations))
+                setActionStatus(`已导入 ${response.result.importedAction?.label || importDraft.actionId}`)
+              }
+            } catch (error) {
+              setActionStatus(error.message || '导入失败')
+            } finally {
+              setImporting(false)
+            }
+          }}
+        />
+      )
     }
     if (activeTab === 'ai') {
       return (
@@ -681,7 +791,7 @@ function App() {
       { label: 'Control Center', value: 'Phase 5' },
       { label: 'Runtime contract', value: 'Phase 2' }
     ]} />
-  }, [activeTab, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, originalSettings, pluginStatus, plugins, runningCommand, saving, serviceMessage, serviceStatus, settings])
+  }, [activeTab, actionStatus, actionsConfig, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, importDraft, importing, originalSettings, pluginStatus, plugins, runningCommand, saving, serviceMessage, serviceStatus, settings])
 
   return (
     <main className="shell">

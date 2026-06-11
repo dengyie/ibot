@@ -11,6 +11,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 const IPC = {
   PET_GET_ANIMATIONS: 'pet:get-animations',
+  PET_ANIMATIONS_CHANGED: 'pet:animations-changed',
   PET_GET_BOUNDS: 'pet:get-bounds',
   PET_GET_MOVEMENT_STATE: 'pet:get-movement-state',
   PET_SET_POSITION: 'pet:set-position',
@@ -35,6 +36,9 @@ contextBridge.exposeInMainWorld('petAPI', {
   },
   onPetAction: (callback) => {
     ipcRenderer.on(IPC.PET_PLAY_ACTION, (_event, payload) => callback(payload))
+  },
+  onAnimationsChanged: (callback) => {
+    ipcRenderer.on(IPC.PET_ANIMATIONS_CHANGED, (_event, payload) => callback(payload))
   },
   onSettingsChanged: (callback) => {
     ipcRenderer.on(IPC.SETTINGS_CHANGED, (_event, settings) => callback(settings))

@@ -10,6 +10,8 @@ const createPetService = ({ eventBus, settingsService, actionService }) => {
 
   const getAnimations = () => actionService.getConfig()
 
+  const reloadAnimations = () => actionService.reload?.() || actionService.getConfig()
+
   const getSettings = () => settingsService.get()
 
   const saveSettings = (settings) => settingsService.save(settings)
@@ -46,6 +48,7 @@ const createPetService = ({ eventBus, settingsService, actionService }) => {
   return {
     getSnapshot,
     getAnimations,
+    reloadAnimations,
     getSettings,
     saveSettings,
     previewSettings,

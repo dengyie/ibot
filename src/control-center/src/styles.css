@@ -352,6 +352,43 @@ button {
   gap: 10px;
 }
 
+.action-list {
+  display: grid;
+  border-top: 1px solid #dde2e8;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  min-height: 58px;
+  border-bottom: 1px solid #dde2e8;
+}
+
+.action-row div:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.action-row strong {
+  font-size: 14px;
+}
+
+.action-row span,
+.action-meta {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .plugin-list {
   display: grid;
   gap: 0;
@@ -443,5 +480,14 @@ button {
 
   .plugin-row {
     grid-template-columns: 1fr;
+  }
+
+  .action-row {
+    grid-template-columns: 1fr;
+    padding: 12px 0;
+  }
+
+  .action-meta {
+    justify-content: flex-start;
   }
 }

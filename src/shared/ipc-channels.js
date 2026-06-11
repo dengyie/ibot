@@ -6,6 +6,7 @@
  */
 const IPC = {
   PET_GET_ANIMATIONS: 'pet:get-animations',
+  PET_ANIMATIONS_CHANGED: 'pet:animations-changed',
   PET_GET_BOUNDS: 'pet:get-bounds',
   PET_GET_MOVEMENT_STATE: 'pet:get-movement-state',
   PET_SET_POSITION: 'pet:set-position',
@@ -19,6 +20,8 @@ const IPC = {
   SETTINGS_PREVIEW_SCALE: 'settings:preview-scale',
   SETTINGS_CLOSE: 'settings:close',
   SETTINGS_CHANGED: 'settings:changed',
+  ACTIONS_GET: 'actions:get',
+  ACTIONS_IMPORT_FRAMES: 'actions:import-frames',
   AI_GET_CONFIG: 'ai:get-config',
   AI_SAVE_CONFIG: 'ai:save-config',
   AI_SAVE_API_KEY: 'ai:save-api-key',
