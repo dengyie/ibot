@@ -1,4 +1,6 @@
 const PET_SAY = 'pet:say'
+const PET_ACTION = 'pet:action'
+const PET_EVENT = 'pet:event'
 
 const createPetService = ({ eventBus, settingsService, actionService }) => {
   const getSnapshot = () => ({
@@ -24,6 +26,23 @@ const createPetService = ({ eventBus, settingsService, actionService }) => {
 
   const onSay = (listener) => eventBus?.on(PET_SAY, listener)
 
+  const playAction = ({ actionId, source } = {}) => {
+    if (!actionService.getAction(actionId)) throw new Error(`Unknown action: ${actionId}`)
+    const payload = { actionId, source }
+    eventBus?.emit(PET_ACTION, payload)
+    return payload
+  }
+
+  const setEvent = ({ type, message, ttlMs, source } = {}) => {
+    const payload = { type, message, ttlMs, source }
+    eventBus?.emit(PET_EVENT, payload)
+    return payload
+  }
+
+  const onAction = (listener) => eventBus?.on(PET_ACTION, listener)
+
+  const onEvent = (listener) => eventBus?.on(PET_EVENT, listener)
+
   return {
     getSnapshot,
     getAnimations,
@@ -32,8 +51,12 @@ const createPetService = ({ eventBus, settingsService, actionService }) => {
     previewSettings,
     getAction,
     say,
-    onSay
+    onSay,
+    playAction,
+    onAction,
+    setEvent,
+    onEvent
   }
 }
 
-module.exports = { PET_SAY, createPetService }
+module.exports = { PET_SAY, PET_ACTION, PET_EVENT, createPetService }

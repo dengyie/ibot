@@ -16,6 +16,7 @@ const IPC = {
   PET_SET_POSITION: 'pet:set-position',
   PET_MOVE_BY: 'pet:move-by',
   PET_SAY: 'pet:say',
+  PET_PLAY_ACTION: 'pet:play-action',
   PET_QUIT: 'pet:quit',
   SETTINGS_OPEN: 'settings:open',
   SETTINGS_CHANGED: 'settings:changed'
@@ -31,6 +32,9 @@ contextBridge.exposeInMainWorld('petAPI', {
   openSettings: () => ipcRenderer.send(IPC.SETTINGS_OPEN),
   onPetSay: (callback) => {
     ipcRenderer.on(IPC.PET_SAY, (_event, payload) => callback(payload))
+  },
+  onPetAction: (callback) => {
+    ipcRenderer.on(IPC.PET_PLAY_ACTION, (_event, payload) => callback(payload))
   },
   onSettingsChanged: (callback) => {
     ipcRenderer.on(IPC.SETTINGS_CHANGED, (_event, settings) => callback(settings))

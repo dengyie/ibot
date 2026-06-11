@@ -23,10 +23,16 @@ const sendToPetWindow = (getPetWindow, channel, data) => {
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, applyWindowScale,
+const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, localHttpService, applyWindowScale,
   clampToWorkArea, getMovementState, createSettingsWindow }) => {
   petService.onSay?.((payload) => {
     sendToPetWindow(getPetWindow, IPC.PET_SAY, payload)
+  })
+  petService.onAction?.((payload) => {
+    sendToPetWindow(getPetWindow, IPC.PET_PLAY_ACTION, payload)
+  })
+  petService.onEvent?.((payload) => {
+    if (payload?.message) sendToPetWindow(getPetWindow, IPC.PET_SAY, { text: payload.message, ttlMs: payload.ttlMs, source: payload.source })
   })
 
   // 渲染进程启动时请求动作列表（通过 preload 暴露的 getAnimations 调用）
@@ -104,6 +110,27 @@ const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginServic
 
   ipcMain.handle(IPC.PLUGINS_RUN_COMMAND, (_event, payload) => {
     return pluginService.runCommand(payload.pluginId, payload.commandId, payload.payload)
+  })
+
+  ipcMain.handle(IPC.SERVICE_GET_STATUS, () => ({
+    config: petService.getSettings().localHttp,
+    runtime: localHttpService.getStatus()
+  }))
+
+  ipcMain.handle(IPC.SERVICE_SAVE_CONFIG, async (_event, config) => {
+    const currentSettings = petService.getSettings()
+    const nextConfig = {
+      ...currentSettings.localHttp,
+      ...config,
+      host: '127.0.0.1',
+      port: Number(config.port || 0),
+      enabled: Boolean(config.enabled)
+    }
+    const savedSettings = petService.saveSettings({ ...currentSettings, localHttp: nextConfig })
+    const runtime = nextConfig.enabled
+      ? await localHttpService.start(nextConfig)
+      : await localHttpService.stop()
+    return { config: savedSettings.localHttp, runtime }
   })
 
   // 设置面板拖动滑块：实时预览缩放（不持久化）

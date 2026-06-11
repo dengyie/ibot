@@ -18,7 +18,9 @@ const IPC = {
   AI_CHAT: 'ai:chat',
   PLUGINS_LIST: 'plugins:list',
   PLUGINS_SET_ENABLED: 'plugins:set-enabled',
-  PLUGINS_RUN_COMMAND: 'plugins:run-command'
+  PLUGINS_RUN_COMMAND: 'plugins:run-command',
+  SERVICE_GET_STATUS: 'service:get-status',
+  SERVICE_SAVE_CONFIG: 'service:save-config'
 }
 
 contextBridge.exposeInMainWorld('controlCenterAPI', {
@@ -33,5 +35,7 @@ contextBridge.exposeInMainWorld('controlCenterAPI', {
   getPlugins: () => ipcRenderer.invoke(IPC.PLUGINS_LIST),
   setPluginEnabled: (pluginId, enabled) => ipcRenderer.invoke(IPC.PLUGINS_SET_ENABLED, { pluginId, enabled }),
   runPluginCommand: (pluginId, commandId, payload) => ipcRenderer.invoke(IPC.PLUGINS_RUN_COMMAND, { pluginId, commandId, payload }),
+  getServiceStatus: () => ipcRenderer.invoke(IPC.SERVICE_GET_STATUS),
+  saveServiceConfig: (config) => ipcRenderer.invoke(IPC.SERVICE_SAVE_CONFIG, config),
   close: () => ipcRenderer.send(IPC.SETTINGS_CLOSE)
 })

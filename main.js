@@ -22,6 +22,7 @@ const { createPetService } = require('./src/main/services/pet-service')
 const { createSecretService } = require('./src/main/services/secret-service')
 const { createAiService } = require('./src/main/services/ai-service')
 const { createPluginService } = require('./src/main/services/plugin-service')
+const { createLocalHttpService } = require('./src/main/services/local-http-service')
 const { createBasicBehaviorPlugin } = require('./src/main/plugins/official/basic-behavior')
 
 let petWindow = null
@@ -48,12 +49,19 @@ app.whenReady().then(() => {
   const petService = createPetService({ eventBus, settingsService, actionService })
   const secretService = createSecretService()
   const aiService = createAiService({ settingsService, secretService })
+  const localHttpService = createLocalHttpService({ petService })
   const pluginService = createPluginService({
     settingsService,
     petService,
     pluginDirs: [path.join(app.getPath('userData'), 'plugins')],
     officialPlugins: [createBasicBehaviorPlugin()]
   })
+  const localHttpConfig = petService.getSettings().localHttp
+  if (localHttpConfig?.enabled) {
+    localHttpService.start(localHttpConfig).catch((error) => {
+      console.error('Failed to start local HTTP service:', error.message)
+    })
+  }
 
   syncLoginItemSettings(petService.getSettings().autoStart)
 
@@ -63,6 +71,7 @@ app.whenReady().then(() => {
     petService,
     aiService,
     pluginService,
+    localHttpService,
     applyWindowScale: (scale) => applyWindowScale(petWindow, scale),
     clampToWorkArea,
     getMovementState,

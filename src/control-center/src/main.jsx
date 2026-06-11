@@ -48,6 +48,19 @@ const defaultAiConfig = {
   hasApiKey: false
 }
 
+const defaultServiceStatus = {
+  config: {
+    enabled: false,
+    host: '127.0.0.1',
+    port: 0
+  },
+  runtime: {
+    enabled: false,
+    host: '127.0.0.1',
+    port: 0
+  }
+}
+
 const api = window.controlCenterAPI || {
   getSettings: async () => defaultSettings,
   saveSettings: async (settings) => settings,
@@ -60,11 +73,17 @@ const api = window.controlCenterAPI || {
   getPlugins: async () => [],
   setPluginEnabled: async (pluginId, enabled) => ({ id: pluginId, enabled }),
   runPluginCommand: async () => ({ ok: true }),
+  getServiceStatus: async () => defaultServiceStatus,
+  saveServiceConfig: async (config) => ({ config, runtime: { ...config, enabled: config.enabled } }),
   close: () => {}
 }
 
 const cloneSettings = (settings) => ({ ...defaultSettings, ...settings })
 const cloneAiConfig = (config) => ({ ...defaultAiConfig, ...config })
+const cloneServiceStatus = (status) => ({
+  config: { ...defaultServiceStatus.config, ...(status?.config || {}) },
+  runtime: { ...defaultServiceStatus.runtime, ...(status?.runtime || {}) }
+})
 
 function SegmentedControl({ label, value, options, onChange }) {
   return (
@@ -355,6 +374,72 @@ function PluginsPane({ plugins, status, runningCommand, onToggle, onRun }) {
   )
 }
 
+function ServicePane({ serviceStatus, status, saving, onChange, onSave }) {
+  const config = serviceStatus.config
+  const runtime = serviceStatus.runtime
+  const endpoint = runtime.enabled && runtime.port
+    ? `http://${runtime.host}:${runtime.port}/api/status`
+    : '未启动'
+
+  return (
+    <section className="pane">
+      <header className="pane-header">
+        <div>
+          <h1>Service</h1>
+          <p>本机 HTTP API</p>
+        </div>
+        <div className="header-actions">
+          <button type="button" className="primary" onClick={onSave} disabled={saving}>
+            {saving ? '保存中' : '保存'}
+          </button>
+        </div>
+      </header>
+
+      <div className="section">
+        <div className="field-row">
+          <div>
+            <div className="field-label">HTTP API</div>
+            <div className="field-note">{runtime.enabled ? '运行中' : '未启动'}</div>
+          </div>
+          <Toggle checked={config.enabled} onChange={(enabled) => onChange({ enabled })} />
+        </div>
+
+        <div className="field-row">
+          <div>
+            <div className="field-label">监听地址</div>
+            <div className="field-note">固定为本机回环地址</div>
+          </div>
+          <input className="text-input" value="127.0.0.1" disabled />
+        </div>
+
+        <label className="field-row">
+          <span className="field-label">端口</span>
+          <input
+            className="text-input"
+            type="number"
+            min="0"
+            max="65535"
+            value={config.port}
+            onChange={(event) => onChange({ port: Number(event.target.value) })}
+          />
+        </label>
+
+        <div className="readonly-row">
+          <span>当前端点</span>
+          <strong className="endpoint-text">{endpoint}</strong>
+        </div>
+
+        <div className="readonly-row">
+          <span>MCP</span>
+          <strong>后续阶段</strong>
+        </div>
+      </div>
+
+      {status ? <div className="status-line">{status}</div> : null}
+    </section>
+  )
+}
+
 function PlaceholderPane({ title, rows }) {
   return (
     <section className="pane">
@@ -391,11 +476,18 @@ function App() {
   const [plugins, setPlugins] = useState([])
   const [pluginStatus, setPluginStatus] = useState('')
   const [runningCommand, setRunningCommand] = useState('')
+  const [serviceStatus, setServiceStatus] = useState(defaultServiceStatus)
+  const [serviceMessage, setServiceMessage] = useState('')
   const originalRef = useRef(defaultSettings)
 
   useEffect(() => {
     let mounted = true
-    Promise.all([api.getSettings(), api.getAiConfig(), api.getPlugins()]).then(([loadedSettings, loadedAiConfig, loadedPlugins]) => {
+    Promise.all([
+      api.getSettings(),
+      api.getAiConfig(),
+      api.getPlugins(),
+      api.getServiceStatus()
+    ]).then(([loadedSettings, loadedAiConfig, loadedPlugins, loadedServiceStatus]) => {
       if (!mounted) return
       const nextSettings = cloneSettings(loadedSettings)
       originalRef.current = nextSettings
@@ -403,6 +495,7 @@ function App() {
       setOriginalSettings(nextSettings)
       setAiConfig(cloneAiConfig(loadedAiConfig))
       setPlugins(loadedPlugins)
+      setServiceStatus(cloneServiceStatus(loadedServiceStatus))
       setLoading(false)
     })
     return () => { mounted = false }
@@ -556,18 +649,39 @@ function App() {
       )
     }
     if (activeTab === 'service') {
-      return <PlaceholderPane title="Service" rows={[
-        { label: 'HTTP API', value: '未启用' },
-        { label: 'MCP', value: '未启用' },
-        { label: '监听地址', value: '127.0.0.1' }
-      ]} />
+      return (
+        <ServicePane
+          serviceStatus={serviceStatus}
+          status={serviceMessage}
+          saving={saving}
+          onChange={(partial) => {
+            setServiceStatus({
+              ...serviceStatus,
+              config: { ...serviceStatus.config, ...partial }
+            })
+          }}
+          onSave={async () => {
+            setSaving(true)
+            setServiceMessage('')
+            try {
+              const nextStatus = cloneServiceStatus(await api.saveServiceConfig(serviceStatus.config))
+              setServiceStatus(nextStatus)
+              setServiceMessage(nextStatus.runtime.enabled ? '本地服务已启动' : '本地服务已停止')
+            } catch (error) {
+              setServiceMessage(error.message || '服务配置保存失败')
+            } finally {
+              setSaving(false)
+            }
+          }}
+        />
+      )
     }
     return <PlaceholderPane title="About" rows={[
       { label: 'Electron', value: '42.4.0' },
       { label: 'Control Center', value: 'Phase 5' },
       { label: 'Runtime contract', value: 'Phase 2' }
     ]} />
-  }, [activeTab, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, originalSettings, pluginStatus, plugins, runningCommand, saving, settings])
+  }, [activeTab, aiConfig, aiStatus, apiKeyDraft, chatDraft, chatMessages, chatting, originalSettings, pluginStatus, plugins, runningCommand, saving, serviceMessage, serviceStatus, settings])
 
   return (
     <main className="shell">

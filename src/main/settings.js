@@ -31,6 +31,11 @@ const defaultSettings = {
     enabled: {
       'official.basic-behavior': true
     }
+  },
+  localHttp: {
+    enabled: false,
+    host: '127.0.0.1',
+    port: 0
   }
 }
 
@@ -48,6 +53,10 @@ const mergeSettings = (settings = {}) => ({
       ...defaultSettings.plugins.enabled,
       ...(settings.plugins?.enabled || {})
     }
+  },
+  localHttp: {
+    ...defaultSettings.localHttp,
+    ...(settings.localHttp || {})
   }
 })
 

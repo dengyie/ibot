@@ -80,3 +80,34 @@ test('pet service emits say events through the runtime event bus', () => {
     { text: 'hi', ttlMs: undefined, source: 'test' }
   ]])
 })
+
+test('pet service emits action and event intents through the runtime event bus', () => {
+  const events = []
+  const service = createPetService({
+    eventBus: {
+      emit: (eventName, payload) => events.push([eventName, payload])
+    },
+    settingsService: {
+      get: () => ({ scale: 1 })
+    },
+    actionService: {
+      getConfig: () => ({ defaultAction: 'idle', clickAction: 'idle', actions: [{ id: 'idle' }] }),
+      getAction: (id) => id === 'idle' ? { id: 'idle' } : null
+    }
+  })
+
+  assert.deepEqual(service.playAction({ actionId: 'idle', source: 'test' }), {
+    actionId: 'idle',
+    source: 'test'
+  })
+  assert.deepEqual(service.setEvent({ type: 'status', message: 'working', ttlMs: 500, source: 'test' }), {
+    type: 'status',
+    message: 'working',
+    ttlMs: 500,
+    source: 'test'
+  })
+  assert.deepEqual(events, [
+    ['pet:action', { actionId: 'idle', source: 'test' }],
+    ['pet:event', { type: 'status', message: 'working', ttlMs: 500, source: 'test' }]
+  ])
+})

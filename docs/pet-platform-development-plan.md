@@ -23,7 +23,7 @@
 - Phase 3 Control Center：已完成基础落地。
 - Phase 4 AI chat：已完成基础落地。
 - Phase 5 Plugin runtime：已完成基础落地。
-- Phase 6 Local HTTP/MCP：未开始。
+- Phase 6 Local HTTP/MCP：已完成 HTTP 基础落地，MCP 后置。
 
 Phase 1 已新增：
 
@@ -119,6 +119,28 @@ Phase 5 当前范围：
 - 坏的本地 manifest 会被隔离跳过，不阻塞其他插件加载。
 - `PetService.say()` 成为 AI 和插件触发气泡的统一入口。
 - 尚未实现第三方插件沙箱、配置 schema 表单、插件日志面板和插件存储。
+
+Phase 6 已新增：
+
+```text
+src/main/services/local-http-service.js
+tests/services/local-http-service.test.js
+```
+
+Phase 6 当前范围：
+
+- 新增本地 HTTP 服务，默认关闭，只允许绑定 loopback：`127.0.0.1`、`localhost`、`::1`。
+- Control Center 的 Service 页面支持启停、端口配置、运行状态和当前端点展示。
+- `settings.localHttp` 保存非敏感服务配置：enabled、host、port。
+- 已提供最小 HTTP API：
+  - `GET /api/status`
+  - `POST /api/pet/say`
+  - `POST /api/pet/action`
+  - `POST /api/pet/event`
+- HTTP API 统一走 `PetService` intent，不直接操作 renderer。
+- `PetService.playAction()` 会推送到宠物窗口切换动作。
+- `PetService.setEvent()` 第一版映射为气泡消息，后续可扩展为完整 runtime event。
+- MCP bridge 暂不实现，等本地 HTTP API 和插件权限模型更稳定后再接。
 
 ## 2. 参考方向
 
@@ -582,6 +604,13 @@ vite.config.js
 - Control Center 可显示服务状态。
 - 提供 `status/say/action/event` 最小 API。
 - MCP bridge 后置。
+
+当前落地：
+
+- 已实现本地 HTTP API 和 Control Center Service 页面。
+- 默认不启动服务，用户可从 UI 启用。
+- 服务固定 loopback，不支持监听公网地址。
+- MCP bridge 保持后置。
 
 ## 10. 风险与约束
 

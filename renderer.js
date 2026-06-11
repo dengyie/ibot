@@ -277,6 +277,13 @@ window.petAPI.onPetSay((payload) => {
   if (payload?.text) say(payload.text, payload.ttlMs)
 })
 
+window.petAPI.onPetAction((payload) => {
+  if (payload?.actionId) {
+    stopWalk()
+    setAction(payload.actionId)
+  }
+})
+
 // DOM 事件绑定
 pet.addEventListener('pointerdown', onPointerDown)
 pet.addEventListener('pointermove', onPointerMove)

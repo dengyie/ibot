@@ -205,6 +205,11 @@ button {
   outline: none;
 }
 
+.text-input:disabled {
+  background: #eef2f6;
+  color: #6b7280;
+}
+
 .text-input:focus {
   border-color: #1f2937;
   box-shadow: 0 0 0 2px rgba(31, 41, 55, 0.12);
@@ -280,6 +285,10 @@ button {
 .readonly-row strong {
   font-size: 14px;
   font-weight: 600;
+}
+
+.endpoint-text {
+  overflow-wrap: anywhere;
 }
 
 .readonly-row span {

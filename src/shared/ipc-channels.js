@@ -11,6 +11,7 @@ const IPC = {
   PET_SET_POSITION: 'pet:set-position',
   PET_MOVE_BY: 'pet:move-by',
   PET_SAY: 'pet:say',
+  PET_PLAY_ACTION: 'pet:play-action',
   PET_QUIT: 'pet:quit',
   SETTINGS_OPEN: 'settings:open',
   SETTINGS_GET: 'settings:get',
@@ -25,7 +26,9 @@ const IPC = {
   AI_CHAT: 'ai:chat',
   PLUGINS_LIST: 'plugins:list',
   PLUGINS_SET_ENABLED: 'plugins:set-enabled',
-  PLUGINS_RUN_COMMAND: 'plugins:run-command'
+  PLUGINS_RUN_COMMAND: 'plugins:run-command',
+  SERVICE_GET_STATUS: 'service:get-status',
+  SERVICE_SAVE_CONFIG: 'service:save-config'
 }
 
 module.exports = { IPC }
