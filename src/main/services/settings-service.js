@@ -1,7 +1,7 @@
 const SETTINGS_CHANGED = 'settings:changed'
 const SETTINGS_PREVIEW = 'settings:preview'
 
-const createSettingsService = ({ eventBus, loadSettings, saveSettings }) => {
+const createSettingsService = ({ eventBus, loadSettings, saveSettings, syncSideEffects }) => {
   let currentSettings = loadSettings()
 
   const get = () => ({ ...currentSettings })
@@ -9,6 +9,7 @@ const createSettingsService = ({ eventBus, loadSettings, saveSettings }) => {
   const save = (settings) => {
     currentSettings = { ...settings }
     saveSettings(currentSettings)
+    syncSideEffects?.(currentSettings)
     eventBus?.emit(SETTINGS_CHANGED, get())
     return get()
   }

@@ -6,6 +6,7 @@ const PET_MANIFEST_FILE = 'pet.json'
 const LEGACY_DEFAULT_FRAME_COUNT = 1
 const LEGACY_DEFAULT_FRAME_MS = 100
 const LEGACY_DEFAULT_FRAME_SIZE = 1
+const LEGACY_ANIMATIONS_PATH = path.join(__dirname, '..', '..', '..', 'cat_anime', 'animations.json')
 
 const withLegacyActionDefaults = (action = {}) => ({
   ...action,
@@ -47,4 +48,28 @@ const loadLegacyPetPack = ({ id = 'legacy-cat', displayName = 'Legacy Cat', getP
   }
 }
 
-module.exports = { PET_MANIFEST_FILE, loadPetPackFromDirectory, loadLegacyPetPack, withLegacyActionDefaults }
+const getLegacyPetAnimations = ({ configPath = LEGACY_ANIMATIONS_PATH } = {}) => {
+  try {
+    if (!fs.existsSync(configPath)) {
+      return { defaultAction: '', clickAction: '', actions: [] }
+    }
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+    return {
+      defaultAction: config.defaultAction || '',
+      clickAction: config.clickAction || '',
+      actions: Array.isArray(config.actions) ? config.actions : []
+    }
+  } catch (error) {
+    console.error('Failed to load legacy animations config:', error)
+    return { defaultAction: '', clickAction: '', actions: [] }
+  }
+}
+
+module.exports = {
+  LEGACY_ANIMATIONS_PATH,
+  PET_MANIFEST_FILE,
+  getLegacyPetAnimations,
+  loadPetPackFromDirectory,
+  loadLegacyPetPack,
+  withLegacyActionDefaults
+}

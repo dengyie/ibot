@@ -12,7 +12,6 @@ const path = require('path')
 const { IPC } = require('./src/shared/ipc-channels')
 const { loadSettings, saveSettings, syncLoginItemSettings } = require('./src/main/settings')
 const { clampToWorkArea, getMovementState } = require('./src/main/screen')
-const { getPetAnimations } = require('./src/main/animations')
 const { applyWindowScale, createWindow, createSettingsWindow } = require('./src/main/window')
 const { createPetRendererSettings, normalizeLocalHttpConfig, registerIpcHandlers } = require('./src/main/ipc')
 const { createEventBus } = require('./src/main/services/event-bus')
@@ -45,8 +44,13 @@ if (!gotTheLock) {
 // ── 应用就绪 ──
 app.whenReady().then(() => {
   const eventBus = createEventBus()
-  const settingsService = createSettingsService({ eventBus, loadSettings, saveSettings })
-  const actionService = createActionService({ getPetAnimations })
+  const settingsService = createSettingsService({
+    eventBus,
+    loadSettings,
+    saveSettings,
+    syncSideEffects: (settings) => syncLoginItemSettings(settings.autoStart)
+  })
+  const actionService = createActionService({})
   const petService = createPetService({ eventBus, settingsService, actionService })
   const secretService = createSecretService()
   const aiService = createAiService({ settingsService, secretService })

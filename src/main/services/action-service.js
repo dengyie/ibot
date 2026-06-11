@@ -1,4 +1,4 @@
-const { loadLegacyPetPack } = require('../pet-pack/loader')
+const { getLegacyPetAnimations, loadLegacyPetPack } = require('../pet-pack/loader')
 const path = require('path')
 const { pathToFileURL } = require('url')
 
@@ -22,7 +22,7 @@ const emptyPetPack = {
   }
 }
 
-const createActionService = ({ getPetAnimations, loadPetPack, projectRoot = path.join(__dirname, '..', '..', '..') }) => {
+const createActionService = ({ loadPetPack, loadLegacyAnimations = getLegacyPetAnimations, projectRoot = path.join(__dirname, '..', '..', '..') }) => {
   let cachedPetPack = null
 
   const getPetPack = () => {
@@ -32,14 +32,12 @@ const createActionService = ({ getPetAnimations, loadPetPack, projectRoot = path
         cachedPetPack = loadPetPack()
         return cachedPetPack
       }
-      if (getPetAnimations) {
-        cachedPetPack = loadLegacyPetPack({
-          id: 'legacy-cat',
-          displayName: 'Legacy Cat',
-          getPetAnimations
-        })
-        return cachedPetPack
-      }
+      cachedPetPack = loadLegacyPetPack({
+        id: 'legacy-cat',
+        displayName: 'Legacy Cat',
+        getPetAnimations: loadLegacyAnimations
+      })
+      return cachedPetPack
     } catch (error) {
       console.error('Failed to load pet pack:', error)
     }

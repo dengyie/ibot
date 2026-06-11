@@ -8,10 +8,12 @@ test('settings service saves settings and emits the persisted value', () => {
   const bus = createEventBus()
   const saved = []
   const events = []
+  const sideEffects = []
   const service = createSettingsService({
     eventBus: bus,
     loadSettings: () => ({ scale: 1, walkSpeed: 2 }),
-    saveSettings: (settings) => saved.push(settings)
+    saveSettings: (settings) => saved.push(settings),
+    syncSideEffects: (settings) => sideEffects.push(settings)
   })
 
   bus.on('settings:changed', (settings) => events.push(settings))
@@ -20,6 +22,7 @@ test('settings service saves settings and emits the persisted value', () => {
 
   assert.deepEqual(next, { scale: 1.25, walkSpeed: 3 })
   assert.deepEqual(saved, [{ scale: 1.25, walkSpeed: 3 }])
+  assert.deepEqual(sideEffects, [{ scale: 1.25, walkSpeed: 3 }])
   assert.deepEqual(events, [{ scale: 1.25, walkSpeed: 3 }])
 })
 

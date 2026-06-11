@@ -5,7 +5,7 @@ const { createActionService } = require('../../src/main/services/action-service'
 
 test('action service returns legacy animation config as runtime actions', () => {
   const service = createActionService({
-    getPetAnimations: () => ({
+    loadLegacyAnimations: () => ({
       defaultAction: 'idle',
       clickAction: 'eat',
       actions: [
@@ -77,7 +77,7 @@ test('action service can expose the normalized pet pack while preserving animati
 test('action service can expose preview-safe file urls for sprites', () => {
   const service = createActionService({
     projectRoot: '/app/ibot',
-    getPetAnimations: () => ({
+    loadLegacyAnimations: () => ({
       defaultAction: 'idle',
       clickAction: 'idle',
       actions: [

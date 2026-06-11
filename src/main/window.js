@@ -2,7 +2,6 @@
  * 窗口管理模块 —— 宠物窗口和设置窗口的创建与缩放。
  */
 const { BrowserWindow, screen } = require('electron')
-const fs = require('fs')
 const path = require('path')
 
 const projectRoot = path.join(__dirname, '..', '..')
@@ -98,8 +97,9 @@ const createSettingsWindow = (petWindow) => {
     maxSettingsY
   )
   settingsWindow.setPosition(Math.round(settingsX), Math.round(settingsY))
-  const controlCenterPath = path.join(projectRoot, 'dist', 'control-center', 'index.html')
-  settingsWindow.loadFile(fs.existsSync(controlCenterPath) ? controlCenterPath : 'settings.html')
+  settingsWindow.loadFile(path.join(projectRoot, 'dist', 'control-center', 'index.html')).catch((error) => {
+    settingsWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><title>ibot Control Center</title><body style="font-family: system-ui; padding: 24px;"><h1>Control Center build missing</h1><p>${error.message}</p></body>`)}`)
+  })
   settingsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   petWindow.settingsWindow = settingsWindow

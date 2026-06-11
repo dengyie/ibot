@@ -11,7 +11,7 @@
 | Electron | ^42.4.0 | 桌面窗口框架 |
 | React + Vite | ^19.2 / ^8.0 | Control Center UI |
 | sharp | ^0.34.5 | 精灵图合成（开发时） |
-| Node 原生 test runner | — | 测试框架（113 个测试） |
+| Node 原生 test runner | — | 测试框架（114 个测试） |
 | HTML / CSS / JS | — | 宠物窗口渲染层 UI 与动画 |
 
 ---
@@ -25,9 +25,6 @@ ibot/
 ├── renderer.js                    # 宠物窗口渲染逻辑（动画、拖拽、散步）
 ├── index.html                     # 宠物窗口 HTML
 ├── control-center-preload.js      # Control Center 预加载脚本
-├── settings.html                  # 旧设置面板 HTML（保留作为回退）
-├── settings-preload.js            # 旧设置面板 preload
-├── settings-renderer.js           # 旧设置面板渲染逻辑
 ├── .github/workflows/ci.yml       # CI 验证工作流
 ├── scripts/
 │   └── generate-sprites.js        # 精灵图生成脚本（CLI 入口）
@@ -36,7 +33,6 @@ ibot/
 │   │   ├── ipc.js                 # 所有 IPC handler 注册（依赖注入）
 │   │   ├── window.js              # 窗口创建（宠物窗口 + Control Center）
 │   │   ├── screen.js              # 屏幕工作区边界钳制与状态检测
-│   │   ├── animations.js          # legacy 动画配置读取
 │   │   ├── settings.js            # 设置磁盘读写 + 默认值 + macOS 登录项
 │   │   ├── runtime/
 │   │   │   └── runtime-state.js   # 不可变 snapshot + 订阅
@@ -269,7 +265,7 @@ React + Vite 构建的 Web 应用，嵌入 Electron BrowserWindow（900×640px, 
 
 **EventBus（23 行）：** 进程内 pub/sub，所有 service 通过它解耦通信。
 
-**SettingsService（30 行）：** 设置读写 + 预览 + 变更通知，是 `preload.js` 和 `settings.html` 的设置获取源。
+**SettingsService：** 设置读写 + 预览 + 变更通知，并通过注入的 side effects 同步 macOS 登录项等宿主状态。
 
 **PetService（68 行）：** 唯一宠物状态源，提供 `say()`、`playAction()`、`setEvent()` 统一接口，AI 和插件通过它触发气泡和动作。
 
@@ -289,9 +285,9 @@ React + Vite 构建的 Web 应用，嵌入 Electron BrowserWindow（900×640px, 
 
 **SpriteGenerator：** 精灵图生成 + 帧文件夹检验（`inspectFrameFolder` + `readFrameMetadata`）。
 
-### 4.7 旧设置面板（保留作为回退）
+### 4.7 Control Center 构建产物
 
-当 Control Center 构建产物（`dist/control-center/index.html`）不存在时，`src/main/window.js` 会回退加载旧 `settings.html`。
+Control Center 构建产物位于 `dist/control-center/index.html`；`npm start` 会先构建它。缺构建产物时，`src/main/window.js` 会显示明确错误页。
 
 ---
 
@@ -338,7 +334,8 @@ React + Vite 构建的 Web 应用，嵌入 Electron BrowserWindow（900×640px, 
 npm start                     # 构建 Control Center + 启动 Electron
 npm run dev:control-center    # 仅启动 Control Center dev server（热更新）
 npm run build:control-center  # 仅构建 Control Center
+npm run pack                  # electron-builder 目录打包验证
 npm run generate-sprites      # 重新生成精灵图
-npm test                      # 运行测试（113 个测试）
+npm test                      # 运行测试（114 个测试）
 npm run check:syntax          # 语法检查
 ```

@@ -4,7 +4,7 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 
-const { loadPetPackFromDirectory, loadLegacyPetPack } = require('../../src/main/pet-pack/loader')
+const { getLegacyPetAnimations, loadPetPackFromDirectory, loadLegacyPetPack } = require('../../src/main/pet-pack/loader')
 
 test('loads and normalizes a pet pack manifest from a directory', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-pet-pack-'))
@@ -118,4 +118,26 @@ test('converts legacy animation config into a pet pack manifest', () => {
     ]
   })
   assert.equal(pack.source.type, 'legacy-cat-anime')
+})
+
+test('reads legacy animations config from disk', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-legacy-animations-'))
+  const configPath = path.join(root, 'animations.json')
+  fs.writeFileSync(configPath, JSON.stringify({
+    defaultAction: 'idle',
+    clickAction: 'wave',
+    actions: [
+      { id: 'idle', sprite: 'sprites/idle.png' },
+      { id: 'wave', sprite: 'sprites/wave.png' }
+    ]
+  }))
+
+  assert.deepEqual(getLegacyPetAnimations({ configPath }), {
+    defaultAction: 'idle',
+    clickAction: 'wave',
+    actions: [
+      { id: 'idle', sprite: 'sprites/idle.png' },
+      { id: 'wave', sprite: 'sprites/wave.png' }
+    ]
+  })
 })

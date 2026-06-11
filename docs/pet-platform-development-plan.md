@@ -72,7 +72,7 @@ Phase 3 当前范围：
 
 - 引入 Vite/React Control Center。
 - `npm start` 会先构建 Control Center，再启动 Electron。
-- Electron 设置窗口优先加载 `dist/control-center/index.html`，缺少构建产物时回退旧 `settings.html`。
+- Electron 设置窗口加载 `dist/control-center/index.html`；`npm start` 会先构建 Control Center，缺构建产物时显示明确错误页。
 - Control Center 全部 6 个 Tab 页面均已实现：Pet / Actions / AI / Plugins / Service / About。
 
 Phase 4 已新增：
@@ -316,7 +316,7 @@ HTTP/MCP 已落地。Control Center Service 页面完成。默认不启动，从
 
 主要风险：
 
-- 重构必须小步验证（当前已有 113 个测试覆盖全部 service 和 pet-pack/plugin 模块）。
+- 重构必须小步验证（当前已有 114 个测试覆盖全部 service 和 pet-pack/plugin 模块）。
 - API Key 存储不能放普通设置 JSON。
 - 插件系统不能为了快而放开 Node/Electron 权限。
 - Control Center 引入前端构建后，需要处理 dev/prod 加载路径。

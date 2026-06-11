@@ -101,11 +101,10 @@ const loadSettings = () => {
 }
 
 /**
- * 将设置写入磁盘，并同步 macOS 登录项状态。
+ * 将设置写入磁盘。
  */
 const saveSettings = (settings) => {
   fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
-  syncLoginItemSettings(settings.autoStart)
 }
 
 module.exports = { settingsPath, defaultSettings, mergeSettings, loadSettings, saveSettings, syncLoginItemSettings }
