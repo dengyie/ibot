@@ -6,8 +6,29 @@
  * — 依赖通过参数注入而非直接 import，避免与 window/settings/screen 模块形成硬耦合。
  * — 修改或新增 IPC 通道时，只需改这一个文件 + shared/ipc-channels.js。
  */
-const { ipcMain, BrowserWindow, app } = require('electron')
+const { ipcMain, BrowserWindow, app, dialog } = require('electron')
 const { IPC } = require('../shared/ipc-channels')
+const { createLocalHttpToken } = require('./services/local-http-service')
+
+const createPetRendererSettings = (settings = {}) => ({
+  scale: settings.scale,
+  walkSpeed: settings.walkSpeed,
+  walkDuration: settings.walkDuration,
+  bubbleDuration: settings.bubbleDuration
+})
+
+const normalizeLocalHttpConfig = (currentConfig = {}, nextConfig = {}) => {
+  const enabled = Boolean(nextConfig.enabled)
+  const token = nextConfig.token || currentConfig.token || (enabled ? createLocalHttpToken() : '')
+  return {
+    ...currentConfig,
+    ...nextConfig,
+    host: '127.0.0.1',
+    port: Number(nextConfig.port ?? currentConfig.port ?? 0),
+    enabled,
+    token
+  }
+}
 
 /**
  * 向宠物窗口安全推送消息的薄封装。
@@ -20,14 +41,46 @@ const sendToPetWindow = (getPetWindow, channel, data) => {
   }
 }
 
+const reloadAndSendAnimations = (getPetWindow, petService) => {
+  const animations = petService.reloadAnimations()
+  sendToPetWindow(getPetWindow, IPC.PET_ANIMATIONS_CHANGED, animations)
+  return animations
+}
+
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, loadSettings, saveSettings, applyWindowScale,
-  getPetAnimations, clampToWorkArea, getMovementState, createSettingsWindow }) => {
+const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, localHttpService, actionImportService, applyWindowScale,
+  clampToWorkArea, getMovementState, createSettingsWindow }) => {
+  let pendingActionFrameSelection = null
+
+  const createSelectionId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+  const getPendingActionFrameSelection = (selectionId) => {
+    if (!pendingActionFrameSelection || pendingActionFrameSelection.id !== selectionId) {
+      throw new Error('Selected frame folder is no longer available')
+    }
+    return pendingActionFrameSelection
+  }
+
+  const inspectPendingActionFrameSelection = async ({ selectionId, actionId }) => {
+    const selection = getPendingActionFrameSelection(selectionId)
+    const result = await actionImportService.inspectActionFrames({ sourceDir: selection.sourceDir, actionId })
+    return { selectionId: selection.id, ...result }
+  }
+
+  petService.onSay?.((payload) => {
+    sendToPetWindow(getPetWindow, IPC.PET_SAY, payload)
+  })
+  petService.onAction?.((payload) => {
+    sendToPetWindow(getPetWindow, IPC.PET_PLAY_ACTION, payload)
+  })
+  petService.onEvent?.((payload) => {
+    if (payload?.message) sendToPetWindow(getPetWindow, IPC.PET_SAY, { text: payload.message, ttlMs: payload.ttlMs, source: payload.source })
+  })
 
   // 渲染进程启动时请求动作列表（通过 preload 暴露的 getAnimations 调用）
-  ipcMain.handle(IPC.PET_GET_ANIMATIONS, () => getPetAnimations())
+  ipcMain.handle(IPC.PET_GET_ANIMATIONS, () => petService.getAnimations())
 
   // 拖拽开始时读取窗口位置，用于计算鼠标偏移
   ipcMain.handle(IPC.PET_GET_BOUNDS, (event) => {
@@ -69,17 +122,114 @@ const registerIpcHandlers = ({ getPetWindow, loadSettings, saveSettings, applyWi
   })
 
   // 设置面板启动时读取当前设置
-  ipcMain.handle(IPC.SETTINGS_GET, () => loadSettings())
+  ipcMain.handle(IPC.SETTINGS_GET, () => petService.getSettings())
+
+  ipcMain.handle(IPC.ACTIONS_GET, () => petService.getPreviewAnimations())
+
+  ipcMain.handle(IPC.ACTIONS_INSPECT_FRAMES, async (_event, payload) => {
+    const selected = await dialog.showOpenDialog({
+      title: '选择动作帧文件夹',
+      properties: ['openDirectory']
+    })
+    if (selected.canceled || !selected.filePaths[0]) return { canceled: true }
+
+    const selectionId = createSelectionId()
+    const sourceDir = selected.filePaths[0]
+    const result = await actionImportService.inspectActionFrames({ sourceDir, actionId: payload.actionId })
+    pendingActionFrameSelection = { id: selectionId, sourceDir }
+    return { canceled: false, selectionId, ...result }
+  })
+
+  ipcMain.handle(IPC.ACTIONS_REINSPECT_FRAMES, async (_event, payload) => {
+    return inspectPendingActionFrameSelection({ selectionId: payload.selectionId, actionId: payload.actionId })
+  })
+
+  ipcMain.handle(IPC.ACTIONS_CLEAR_FRAME_SELECTION, (_event, payload) => {
+    if (!payload?.selectionId || pendingActionFrameSelection?.id === payload.selectionId) {
+      pendingActionFrameSelection = null
+    }
+    return { ok: true }
+  })
+
+  ipcMain.handle(IPC.ACTIONS_IMPORT_FRAMES, async (_event, payload) => {
+    const selection = getPendingActionFrameSelection(payload.selectionId)
+    const inspectionResult = await inspectPendingActionFrameSelection({ selectionId: payload.selectionId, actionId: payload.actionId })
+    if (!inspectionResult.inspection.valid) {
+      return { ok: false, inspectionResult }
+    }
+
+    const result = await actionImportService.importActionFrames({
+      sourceDir: selection.sourceDir,
+      actionId: payload.actionId,
+      label: payload.label
+    })
+    pendingActionFrameSelection = null
+    reloadAndSendAnimations(getPetWindow, petService)
+    return { ok: true, canceled: false, result, animations: petService.getPreviewAnimations() }
+  })
+
+  ipcMain.handle(IPC.ACTIONS_SAVE_CONFIG, async (_event, payload) => {
+    const result = await actionImportService.updateActionConfig(payload)
+    reloadAndSendAnimations(getPetWindow, petService)
+    return { result, animations: petService.getPreviewAnimations() }
+  })
+
+  ipcMain.handle(IPC.ACTIONS_DELETE, async (_event, payload) => {
+    const result = await actionImportService.deleteAction(payload.actionId)
+    reloadAndSendAnimations(getPetWindow, petService)
+    return { result, animations: petService.getPreviewAnimations() }
+  })
 
   // 设置面板点击"保存"：持久化并通知宠物窗口应用变更
   ipcMain.handle(IPC.SETTINGS_SAVE, (_event, settings) => {
-    saveSettings(settings)
-    sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, settings)
-    applyWindowScale(getPetWindow(), settings.scale)
+    const savedSettings = petService.saveSettings(settings)
+    sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, createPetRendererSettings(savedSettings))
+    applyWindowScale(getPetWindow(), savedSettings.scale)
+    return savedSettings
+  })
+
+  ipcMain.handle(IPC.AI_GET_CONFIG, () => aiService.getConfig())
+
+  ipcMain.handle(IPC.AI_SAVE_CONFIG, (_event, config) => aiService.saveConfig(config))
+
+  ipcMain.handle(IPC.AI_SAVE_API_KEY, (_event, apiKey) => aiService.saveApiKey(apiKey))
+
+  ipcMain.handle(IPC.AI_TEST_CONNECTION, () => aiService.testConnection())
+
+  ipcMain.handle(IPC.AI_CHAT, async (_event, payload) => {
+    const result = await aiService.chat(payload)
+    petService.say({ text: result.reply, source: 'ai' })
+    return result
+  })
+
+  ipcMain.handle(IPC.PLUGINS_LIST, () => pluginService.listPlugins())
+
+  ipcMain.handle(IPC.PLUGINS_SET_ENABLED, (_event, payload) => {
+    return pluginService.setEnabled(payload.pluginId, payload.enabled)
+  })
+
+  ipcMain.handle(IPC.PLUGINS_RUN_COMMAND, (_event, payload) => {
+    return pluginService.runCommand(payload.pluginId, payload.commandId, payload.payload)
+  })
+
+  ipcMain.handle(IPC.SERVICE_GET_STATUS, () => ({
+    config: petService.getSettings().localHttp,
+    runtime: localHttpService.getStatus()
+  }))
+
+  ipcMain.handle(IPC.SERVICE_SAVE_CONFIG, async (_event, config) => {
+    const currentSettings = petService.getSettings()
+    const nextConfig = normalizeLocalHttpConfig(currentSettings.localHttp, config)
+    const runtime = nextConfig.enabled
+      ? await localHttpService.start(nextConfig)
+      : await localHttpService.stop()
+    const savedSettings = petService.saveSettings({ ...currentSettings, localHttp: nextConfig })
+    return { config: savedSettings.localHttp, runtime }
   })
 
   // 设置面板拖动滑块：实时预览缩放（不持久化）
   ipcMain.on(IPC.SETTINGS_PREVIEW_SCALE, (_event, scale) => {
+    petService.previewSettings({ scale })
     applyWindowScale(getPetWindow(), scale)
     sendToPetWindow(getPetWindow, IPC.SETTINGS_CHANGED, { scale })
   })
@@ -97,4 +247,4 @@ const registerIpcHandlers = ({ getPetWindow, loadSettings, saveSettings, applyWi
   })
 }
 
-module.exports = { registerIpcHandlers }
+module.exports = { createPetRendererSettings, normalizeLocalHttpConfig, registerIpcHandlers }

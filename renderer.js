@@ -246,6 +246,14 @@ const renderMenu = (actions) => {
   mkDiv(); mkBtn('散步', 'walk'); mkBtn('设置', 'settings'); mkDiv(); mkBtn('退出', 'quit')
 }
 
+const applyAnimationsConfig = ({ actions, defaultAction, clickAction }) => {
+  state.defaultAction = defaultAction
+  state.clickAction = clickAction
+  state.animations = Object.fromEntries(actions.map((a) => [a.id, a]))
+  renderMenu(actions)
+  if (state.defaultAction) setAction(state.defaultAction)
+}
+
 const hideMenu = () => menu.classList.remove('open')
 const showMenu = () => menu.classList.add('open')
 
@@ -273,6 +281,21 @@ window.petAPI.onSettingsChanged((s) => {
   if (s.bubbleDuration != null) state.bubbleDuration = s.bubbleDuration
 })
 
+window.petAPI.onPetSay((payload) => {
+  if (payload?.text) say(payload.text, payload.ttlMs)
+})
+
+window.petAPI.onPetAction((payload) => {
+  if (payload?.actionId) {
+    stopWalk()
+    setAction(payload.actionId)
+  }
+})
+
+window.petAPI.onAnimationsChanged((config) => {
+  if (config?.actions) applyAnimationsConfig(config)
+})
+
 // DOM 事件绑定
 pet.addEventListener('pointerdown', onPointerDown)
 pet.addEventListener('pointermove', onPointerMove)
@@ -290,15 +313,11 @@ window.addEventListener('blur', hideMenu)  // 窗口失焦时自动关闭菜单
  * 4. 启动散步 tick 循环（40ms ≈ 25fps）
  */
 const start = async () => {
-  const { actions, defaultAction, clickAction } = await window.petAPI.getAnimations()
-  state.defaultAction = defaultAction
-  state.clickAction = clickAction
-  state.animations = Object.fromEntries(actions.map((a) => [a.id, a]))
-  renderMenu(actions)
+  const config = await window.petAPI.getAnimations()
+  applyAnimationsConfig(config)
 
   if (!state.defaultAction) { say('没有找到动作图片'); return }
 
-  setAction(state.defaultAction)
   say('喵')
   state.walkTimer = window.setInterval(tickWalk, 40)
 }

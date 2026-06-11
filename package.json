@@ -3,11 +3,19 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "generate-sprites": "node scripts/generate-sprites.js"
+    "start": "npm run build:control-center && electron .",
+    "dev:control-center": "vite --config src/control-center/vite.config.js --host 127.0.0.1",
+    "build:control-center": "vite build --config src/control-center/vite.config.js",
+    "generate-sprites": "node scripts/generate-sprites.js",
+    "check:syntax": "node --check main.js preload.js control-center-preload.js renderer.js settings-preload.js settings-renderer.js scripts/generate-sprites.js src/main/*.js src/main/services/*.js src/main/runtime/*.js src/main/pet-pack/*.js src/main/plugins/*.js src/main/plugins/official/*.js src/shared/*.js tests/services/*.test.js tests/pet-pack/*.test.js tests/plugins/*.test.js",
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "devDependencies": {
-    "electron": "^28.1.0",
-    "sharp": "^0.34.5"
+    "@vitejs/plugin-react": "^6.0.2",
+    "electron": "^42.4.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "sharp": "^0.34.5",
+    "vite": "^8.0.16"
   }
 }

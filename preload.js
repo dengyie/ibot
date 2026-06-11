@@ -11,10 +11,13 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 const IPC = {
   PET_GET_ANIMATIONS: 'pet:get-animations',
+  PET_ANIMATIONS_CHANGED: 'pet:animations-changed',
   PET_GET_BOUNDS: 'pet:get-bounds',
   PET_GET_MOVEMENT_STATE: 'pet:get-movement-state',
   PET_SET_POSITION: 'pet:set-position',
   PET_MOVE_BY: 'pet:move-by',
+  PET_SAY: 'pet:say',
+  PET_PLAY_ACTION: 'pet:play-action',
   PET_QUIT: 'pet:quit',
   SETTINGS_OPEN: 'settings:open',
   SETTINGS_CHANGED: 'settings:changed'
@@ -28,6 +31,15 @@ contextBridge.exposeInMainWorld('petAPI', {
   moveBy: (delta) => ipcRenderer.invoke(IPC.PET_MOVE_BY, delta),
   quit: () => ipcRenderer.send(IPC.PET_QUIT),
   openSettings: () => ipcRenderer.send(IPC.SETTINGS_OPEN),
+  onPetSay: (callback) => {
+    ipcRenderer.on(IPC.PET_SAY, (_event, payload) => callback(payload))
+  },
+  onPetAction: (callback) => {
+    ipcRenderer.on(IPC.PET_PLAY_ACTION, (_event, payload) => callback(payload))
+  },
+  onAnimationsChanged: (callback) => {
+    ipcRenderer.on(IPC.PET_ANIMATIONS_CHANGED, (_event, payload) => callback(payload))
+  },
   onSettingsChanged: (callback) => {
     ipcRenderer.on(IPC.SETTINGS_CHANGED, (_event, settings) => callback(settings))
   }

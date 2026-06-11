@@ -2,11 +2,14 @@
  * 窗口管理模块 —— 宠物窗口和设置窗口的创建与缩放。
  */
 const { BrowserWindow, screen } = require('electron')
+const fs = require('fs')
 const path = require('path')
 
 const projectRoot = path.join(__dirname, '..', '..')
 const BASE_WIDTH = 300
 const BASE_HEIGHT = 300
+const CONTROL_CENTER_WIDTH = 900
+const CONTROL_CENTER_HEIGHT = 640
 
 const applyWindowScale = (petWindow, scale) => {
   if (!petWindow || petWindow.isDestroyed()) return
@@ -61,18 +64,19 @@ const createSettingsWindow = (petWindow) => {
   }
 
   const settingsWindow = new BrowserWindow({
-    width: 280,
-    height: 390,
-    minWidth: 260,
-    minHeight: 350,
+    width: CONTROL_CENTER_WIDTH,
+    height: CONTROL_CENTER_HEIGHT,
+    minWidth: 760,
+    minHeight: 560,
     resizable: true,
-    frame: false,
+    frame: true,
     transparent: false,
     alwaysOnTop: true,
     backgroundColor: '#f5f5f5',
     hasShadow: true,
+    title: 'ibot Control Center',
     webPreferences: {
-      preload: path.join(projectRoot, 'settings-preload.js'),
+      preload: path.join(projectRoot, 'control-center-preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -83,15 +87,19 @@ const createSettingsWindow = (petWindow) => {
   const display = screen.getDisplayMatching(petBounds)
   const { workArea } = display
   let settingsX = petX + petBounds.width + 12
-  if (settingsX + 280 > workArea.x + workArea.width) {
-    settingsX = petX - 292
+  if (settingsX + CONTROL_CENTER_WIDTH > workArea.x + workArea.width) {
+    settingsX = petX - CONTROL_CENTER_WIDTH - 12
   }
+  const maxSettingsX = Math.max(workArea.x, workArea.x + workArea.width - CONTROL_CENTER_WIDTH)
+  settingsX = Math.min(Math.max(settingsX, workArea.x), maxSettingsX)
+  const maxSettingsY = Math.max(workArea.y, workArea.y + workArea.height - CONTROL_CENTER_HEIGHT)
   const settingsY = Math.min(
     Math.max(petY, workArea.y),
-    workArea.y + workArea.height - 390
+    maxSettingsY
   )
   settingsWindow.setPosition(Math.round(settingsX), Math.round(settingsY))
-  settingsWindow.loadFile('settings.html')
+  const controlCenterPath = path.join(projectRoot, 'dist', 'control-center', 'index.html')
+  settingsWindow.loadFile(fs.existsSync(controlCenterPath) ? controlCenterPath : 'settings.html')
   settingsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   petWindow.settingsWindow = settingsWindow

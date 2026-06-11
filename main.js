@@ -8,12 +8,23 @@
  * 不包含：窗口创建细节、IPC 处理、设置读写、屏幕计算 —— 均在 src/main/ 中。
  */
 const { app, BrowserWindow } = require('electron')
+const path = require('path')
 const { IPC } = require('./src/shared/ipc-channels')
-const { loadSettings, saveSettings } = require('./src/main/settings')
+const { loadSettings, saveSettings, syncLoginItemSettings } = require('./src/main/settings')
 const { clampToWorkArea, getMovementState } = require('./src/main/screen')
 const { getPetAnimations } = require('./src/main/animations')
 const { applyWindowScale, createWindow, createSettingsWindow } = require('./src/main/window')
-const { registerIpcHandlers } = require('./src/main/ipc')
+const { createPetRendererSettings, normalizeLocalHttpConfig, registerIpcHandlers } = require('./src/main/ipc')
+const { createEventBus } = require('./src/main/services/event-bus')
+const { createSettingsService } = require('./src/main/services/settings-service')
+const { createActionService } = require('./src/main/services/action-service')
+const { createPetService } = require('./src/main/services/pet-service')
+const { createSecretService } = require('./src/main/services/secret-service')
+const { createAiService } = require('./src/main/services/ai-service')
+const { createPluginService } = require('./src/main/services/plugin-service')
+const { createLocalHttpService } = require('./src/main/services/local-http-service')
+const { createActionImportService } = require('./src/main/services/action-import-service')
+const { createBasicBehaviorPlugin } = require('./src/main/plugins/official/basic-behavior')
 
 let petWindow = null
 const getPetWindow = () => petWindow
@@ -33,15 +44,48 @@ if (!gotTheLock) {
 
 // ── 应用就绪 ──
 app.whenReady().then(() => {
-  app.setLoginItemSettings({ openAtLogin: loadSettings().autoStart })
+  const eventBus = createEventBus()
+  const settingsService = createSettingsService({ eventBus, loadSettings, saveSettings })
+  const actionService = createActionService({ getPetAnimations })
+  const petService = createPetService({ eventBus, settingsService, actionService })
+  const secretService = createSecretService()
+  const aiService = createAiService({ settingsService, secretService })
+  const localHttpService = createLocalHttpService({ petService })
+  const actionImportService = createActionImportService({
+    framesRoot: path.join(__dirname, 'cat_anime', 'flames'),
+    spritesDir: path.join(__dirname, 'cat_anime', 'sprites'),
+    configPath: path.join(__dirname, 'cat_anime', 'animations.json')
+  })
+  const pluginService = createPluginService({
+    settingsService,
+    petService,
+    pluginDirs: [path.join(app.getPath('userData'), 'plugins')],
+    officialPlugins: [createBasicBehaviorPlugin()]
+  })
+  let localHttpConfig = petService.getSettings().localHttp
+  if (localHttpConfig?.enabled) {
+    const normalizedConfig = normalizeLocalHttpConfig(localHttpConfig, localHttpConfig)
+    if (normalizedConfig.token !== localHttpConfig.token) {
+      const currentSettings = petService.getSettings()
+      petService.saveSettings({ ...currentSettings, localHttp: normalizedConfig })
+      localHttpConfig = normalizedConfig
+    }
+    localHttpService.start(localHttpConfig).catch((error) => {
+      console.error('Failed to start local HTTP service:', error.message)
+    })
+  }
+
+  syncLoginItemSettings(petService.getSettings().autoStart)
 
   // 注册 IPC 处理器（依赖注入：主模块只负责"连接"，不负责"实现"）
   registerIpcHandlers({
     getPetWindow,
-    loadSettings,
-    saveSettings,
+    petService,
+    aiService,
+    pluginService,
+    localHttpService,
+    actionImportService,
     applyWindowScale: (scale) => applyWindowScale(petWindow, scale),
-    getPetAnimations,
     clampToWorkArea,
     getMovementState,
     createSettingsWindow: () => createSettingsWindow(petWindow)
@@ -51,9 +95,9 @@ app.whenReady().then(() => {
 
   // 页面加载完成后推送初始设置到渲染进程
   petWindow.webContents.on('did-finish-load', () => {
-    const settings = loadSettings()
+    const settings = petService.getSettings()
     applyWindowScale(petWindow, settings.scale)
-    petWindow.webContents.send(IPC.SETTINGS_CHANGED, settings)
+    petWindow.webContents.send(IPC.SETTINGS_CHANGED, createPetRendererSettings(settings))
   })
 
   // macOS：Dock 图标点击时若窗口已关闭则重建

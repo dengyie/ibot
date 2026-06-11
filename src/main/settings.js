@@ -18,7 +18,53 @@ const defaultSettings = {
   walkSpeed: 2,          // 散步速度（px/frame，可选 1/2/3）
   walkDuration: 15000,   // 散步自动停止时长（ms）
   bubbleDuration: 1300,  // 气泡显示时长（ms）
-  autoStart: false       // 是否开机自启
+  autoStart: false,      // 是否开机自启
+  ai: {
+    enabled: false,
+    provider: 'openai-compatible',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-4o-mini',
+    apiKeyRef: 'ai.default',
+    systemPrompt: 'You are a friendly desktop pet companion.'
+  },
+  plugins: {
+    enabled: {
+      'official.basic-behavior': true
+    }
+  },
+  localHttp: {
+    enabled: false,
+    host: '127.0.0.1',
+    port: 0,
+    token: ''
+  }
+}
+
+const mergeSettings = (settings = {}) => ({
+  ...defaultSettings,
+  ...settings,
+  ai: {
+    ...defaultSettings.ai,
+    ...(settings.ai || {})
+  },
+  plugins: {
+    ...defaultSettings.plugins,
+    ...(settings.plugins || {}),
+    enabled: {
+      ...defaultSettings.plugins.enabled,
+      ...(settings.plugins?.enabled || {})
+    }
+  },
+  localHttp: {
+    ...defaultSettings.localHttp,
+    ...(settings.localHttp || {})
+  }
+})
+
+const syncLoginItemSettings = (autoStart) => {
+  // macOS 开发态 Electron 未打包成 .app 时设置登录项会报权限错误；打包后再同步系统设置。
+  if (process.platform === 'darwin' && !app.isPackaged) return
+  app.setLoginItemSettings({ openAtLogin: autoStart })
 }
 
 /**
@@ -28,10 +74,10 @@ const defaultSettings = {
 const loadSettings = () => {
   try {
     if (fs.existsSync(settingsPath)) {
-      return { ...defaultSettings, ...JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) }
+      return mergeSettings(JSON.parse(fs.readFileSync(settingsPath, 'utf-8')))
     }
   } catch (_) { /* 文件损坏时回退到默认值 */ }
-  return { ...defaultSettings }
+  return mergeSettings()
 }
 
 /**
@@ -39,7 +85,7 @@ const loadSettings = () => {
  */
 const saveSettings = (settings) => {
   fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
-  app.setLoginItemSettings({ openAtLogin: settings.autoStart })
+  syncLoginItemSettings(settings.autoStart)
 }
 
-module.exports = { settingsPath, defaultSettings, loadSettings, saveSettings }
+module.exports = { settingsPath, defaultSettings, mergeSettings, loadSettings, saveSettings, syncLoginItemSettings }
