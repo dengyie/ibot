@@ -37,6 +37,11 @@ export const defaultActionsConfig = {
   actions: []
 }
 
+export const defaultPetPacks = {
+  activePackId: 'legacy-cat',
+  packs: []
+}
+
 export const cloneSettings = (settings) => ({ ...defaultSettings, ...settings })
 
 export const cloneAiConfig = (config) => ({ ...defaultAiConfig, ...config })
@@ -63,6 +68,12 @@ export const cloneActionsConfig = (config) => ({
   ...defaultActionsConfig,
   ...config,
   actions: Array.isArray(config?.actions) ? config.actions : []
+})
+
+export const clonePetPacks = (petPacks) => ({
+  ...defaultPetPacks,
+  ...petPacks,
+  packs: Array.isArray(petPacks?.packs) ? petPacks.packs : []
 })
 
 export const cloneChatMessages = (messages) => (Array.isArray(messages) ? messages : [])

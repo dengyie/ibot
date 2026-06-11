@@ -1,4 +1,4 @@
-import { defaultActionsConfig, defaultAiConfig, defaultServiceStatus, defaultSettings } from '../lib/defaults.js'
+import { defaultActionsConfig, defaultAiConfig, defaultPetPacks, defaultServiceStatus, defaultSettings } from '../lib/defaults.js'
 
 const createDemoInspection = (actionId = 'wave') => ({
   canceled: false,
@@ -31,6 +31,12 @@ const demoApi = {
   importActionFrames: async ({ actionId, label } = {}) => ({ ok: true, result: { importedAction: { id: actionId, label: label || actionId } }, animations: defaultActionsConfig }),
   saveActionsConfig: async (config) => ({ animations: config }),
   deleteAction: async () => ({ animations: defaultActionsConfig }),
+  listPetPacks: async () => defaultPetPacks,
+  inspectPetPackDirectory: async () => ({ canceled: true }),
+  clearPetPackSelection: async () => ({ ok: true }),
+  importPetPack: async () => ({ petPacks: defaultPetPacks }),
+  setActivePetPack: async () => ({ petPacks: defaultPetPacks, animations: defaultActionsConfig }),
+  removePetPack: async () => ({ petPacks: defaultPetPacks }),
   getAiConfig: async () => defaultAiConfig,
   saveAiConfig: async (config) => ({ ...defaultAiConfig, ...config }),
   saveAiApiKey: async () => ({ apiKeyRef: 'ai.default', hasApiKey: true }),

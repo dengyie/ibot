@@ -112,3 +112,23 @@ test('rejects unsafe sprite paths', () => {
     /safe relative path/
   )
 })
+
+test('rejects unsafe pet pack and action ids', () => {
+  const baseAction = {
+    id: 'idle',
+    sprite: 'sprites/idle.png',
+    frameCount: 16,
+    frameMs: 95,
+    frameWidth: 191,
+    frameHeight: 453
+  }
+
+  assert.throws(
+    () => normalizePetPackManifest({ id: '../cat', actions: [baseAction] }),
+    /safe id/
+  )
+  assert.throws(
+    () => normalizePetPackManifest({ id: 'cat', actions: [{ ...baseAction, id: '../idle' }] }),
+    /safe id/
+  )
+})

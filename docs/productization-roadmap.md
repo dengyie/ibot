@@ -9,20 +9,20 @@
 ### 1.1 已具备能力
 
 - `PetService` 是唯一宠物状态源，AI、插件、HTTP、MCP 都通过它触发 `say`、`playAction`、`setEvent`。
-- Pet pack runtime 已有 `schema` / `loader` / `importer`，legacy `cat_anime/animations.json` 已能包装为 runtime pack。
+- Pet pack runtime 已有 `schema` / `loader` / `importer`，并已补齐用户可操作的整包检查、导入、启用、删除体验。
 - Control Center 已覆盖 Pet / Actions / AI / Plugins / Service / About；Phase 1 已拆出 root、App shell、pane、hook、api facade、shared component 与 lib helper。
 - AI 已支持 OpenAI-compatible provider、API Key secret 隔离、请求超时、有界持久会话、轻量语义动作触发。
 - 插件已有 manifest 权限白名单、本地插件短生命周期子进程 runner、Node permission model、VM 隔离、受限 SDK、AI/network/storage 能力、插件日志与私有存储 UI。
 - 本地服务已有 token-gated HTTP API、访问日志、`POST /mcp` JSON-RPC bridge、MCP session。
 - `npm run pack` 已通过目录打包验证，`electron-builder` 基础配置可用。
-- CI / 测试已覆盖 service、pet-pack、plugin 核心路径，当前文档记录为 114 个测试。
+- CI / 测试已覆盖 service、pet-pack、plugin 核心路径，当前文档记录为 123 个测试。
 
 ### 1.2 仍未产品化的深水区
 
 | 领域 | 当前状态 | 产品化缺口 |
 |------|----------|------------|
 | 插件生态 | 可运行、可隔离、可授权 | 沙箱方案评估、签名、安装/更新流、权限变更提示、插件目录/市场 |
-| Pet pack | runtime 已有，动作导入可用 | 多 pack 管理、整包导入、整包预览、切换、版本管理、包存储策略 |
+| Pet pack | Phase 2 已支持多 pack 列表、整包检查/导入/启用/删除 | 后续补版本升级、包导出、catalog 运营 |
 | AI 行为编排 | 关键词/label/kind 语义匹配 | 结构化 tool-call、可配置行为规则、调试/回放、规则安全边界 |
 | MCP | 最小 JSON-RPC bridge | 客户端兼容矩阵、streamable HTTP/SSE、外部 agent 使用文档、会话管理 |
 | 分发 | `pack` 可跑 | app icon、签名/公证、安装包验证、自动更新、发布流水线 |
@@ -587,20 +587,20 @@ CSC_KEY_PASSWORD
 
 ## 14. 推荐下一步
 
-Phase 1 已完成，下一步进入 Phase 2：Pet pack 完整管理体验。这个阶段会把已有 runtime/schema/loader/importer 从底层能力提升为用户可见的安装、预览、切换和版本管理闭环。
+Phase 1 和 Phase 2 已完成，下一步进入 Phase 3：插件生态产品化。这个阶段会把已有 runner/权限 SDK/AI/network/storage 能力补齐为安装包、权限 review、签名校验和更新流。
 
 建议下一张任务卡：
 
 ```text
-title: Add Pet Pack management experience
+title: Productize plugin installation and permission review
 scope:
-  - create PetPackService for installed pack metadata and active pack switching
-  - add pet pack inspect/import/remove IPC and preload APIs
-  - extend ActionService to load the active pack while preserving legacy cat fallback
-  - add Control Center Pet Packs view under Actions
+  - add PluginInstallService for inspect/install/update/uninstall
+  - define .ibot-plugin.zip package inspection and hash manifest
+  - add permission diff review for new permissions and network hosts
+  - add Control Center plugin install/review/detail UI
 acceptance:
   - npm run build:control-center
   - npm run check:syntax
   - npm test
-  - manual smoke: import pack, preview pack, switch active pack, reject invalid pack
+  - manual smoke: inspect plugin package, install disabled, approve permission diff, uninstall
 ```

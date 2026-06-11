@@ -92,11 +92,44 @@ function FrameInspectionReport({ report }) {
   )
 }
 
+function PetPackInspectionReport({ report }) {
+  if (!report) return null
+  const errors = Array.isArray(report.errors) ? report.errors : []
+  const pack = report.pack
+
+  return (
+    <div className={report.valid ? 'inspection-report' : 'inspection-report invalid'}>
+      <div className="inspection-summary">
+        <strong>{report.folderName}</strong>
+        <span>{pack ? `${pack.actionCount} 动作 · ${pack.version}` : '未读取到 manifest'}</span>
+      </div>
+      {pack?.previewSprite ? (
+        <div className="pet-pack-preview">
+          <img src={pack.previewSprite} alt="" />
+          <div>
+            <strong>{pack.displayName}</strong>
+            <span>{pack.id}</span>
+            <span>默认 {pack.defaultAction} · 点击 {pack.clickAction}</span>
+          </div>
+        </div>
+      ) : null}
+      {errors.length ? (
+        <div className="inspection-block error">
+          <strong>错误</strong>
+          {errors.map((error) => <span key={error}>{error}</span>)}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 export function ActionsPane({
   actionsConfig,
+  petPacks,
   selectedActionId,
   importDraft,
   importInspection,
+  petPackInspection,
   status,
   working,
   onSelectAction,
@@ -107,7 +140,12 @@ export function ActionsPane({
   onReinspect,
   onClearInspection,
   onImport,
-  onDelete
+  onDelete,
+  onInspectPetPack,
+  onClearPetPackInspection,
+  onImportPetPack,
+  onSetActivePetPack,
+  onRemovePetPack
 }) {
   const selectedAction = actionsConfig.actions.find((action) => action.id === selectedActionId)
     || actionsConfig.actions.find((action) => action.id === actionsConfig.defaultAction)
@@ -231,6 +269,61 @@ export function ActionsPane({
                     onDelete(action.id)
                   }}
                 >
+                  删除
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="pet-pack-panel">
+        <div className="plugin-log-header">
+          <div>
+            <h2>Pet Packs</h2>
+            <span>当前 {petPacks.activePackId}</span>
+          </div>
+          <div className="plugin-log-actions">
+            <button type="button" className="ghost" onClick={onInspectPetPack} disabled={working}>选择并检查</button>
+            <button
+              type="button"
+              className="primary"
+              onClick={onImportPetPack}
+              disabled={working || !petPackInspection?.selectionId || !petPackInspection?.valid}
+            >
+              导入整包
+            </button>
+          </div>
+        </div>
+
+        {petPackInspection ? (
+          <div className="inspection-row">
+            <PetPackInspectionReport report={petPackInspection} />
+            <button type="button" className="danger-text" onClick={onClearPetPackInspection} disabled={working}>
+              清除选择
+            </button>
+          </div>
+        ) : null}
+
+        <div className="pet-pack-list">
+          {petPacks.packs.length === 0 ? (
+            <div className="empty-chat">暂无 Pet pack</div>
+          ) : petPacks.packs.map((pack) => (
+            <div className={pack.active ? 'pet-pack-row active' : 'pet-pack-row'} key={pack.id}>
+              <div className="pet-pack-identity">
+                {pack.previewSprite ? <img src={pack.previewSprite} alt="" /> : <div className="pet-pack-thumb" />}
+                <div>
+                  <strong>{pack.displayName}</strong>
+                  <span>{pack.id} · {pack.version}</span>
+                  <span>{pack.source} · {pack.actionCount || 0} 动作</span>
+                  {pack.error ? <span className="danger-text">{pack.error}</span> : null}
+                </div>
+              </div>
+              <div className="pet-pack-actions">
+                <button type="button" className="ghost" disabled={working || pack.active || pack.valid === false} onClick={() => onSetActivePetPack(pack.id)}>
+                  {pack.active ? '使用中' : '启用'}
+                </button>
+                <button type="button" className="danger-text" disabled={working || pack.active || pack.source === 'built-in'} onClick={() => onRemovePetPack(pack.id)}>
                   删除
                 </button>
               </div>

@@ -61,7 +61,7 @@ const triggerAiSemanticAction = (petService, reply) => {
 /**
  * 注册所有 IPC 处理器。接收依赖注入对象，各 handler 只通过注入的函数访问外部能力。
  */
-const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginService, localHttpService, actionImportService, applyWindowScale,
+const registerIpcHandlers = ({ getPetWindow, petService, petPackService, aiService, pluginService, localHttpService, actionImportService, applyWindowScale,
   clampToWorkArea, getMovementState, createSettingsWindow }) => {
   let pendingActionFrameSelection = null
 
@@ -189,6 +189,37 @@ const registerIpcHandlers = ({ getPetWindow, petService, aiService, pluginServic
     const result = await actionImportService.deleteAction(payload.actionId)
     reloadAndSendAnimations(getPetWindow, petService)
     return { result, animations: petService.getPreviewAnimations() }
+  })
+
+  ipcMain.handle(IPC.PET_PACKS_LIST, () => petPackService.listPacks())
+
+  ipcMain.handle(IPC.PET_PACKS_INSPECT_DIRECTORY, async () => {
+    const selected = await dialog.showOpenDialog({
+      title: '选择 Pet Pack 文件夹',
+      properties: ['openDirectory']
+    })
+    if (selected.canceled || !selected.filePaths[0]) return { canceled: true }
+    return { canceled: false, ...petPackService.inspectPackDirectory(selected.filePaths[0]) }
+  })
+
+  ipcMain.handle(IPC.PET_PACKS_CLEAR_SELECTION, (_event, payload) => {
+    return petPackService.clearPendingSelection(payload?.selectionId)
+  })
+
+  ipcMain.handle(IPC.PET_PACKS_IMPORT, (_event, payload) => {
+    const result = petPackService.importPack(payload.selectionId)
+    return { ...result, petPacks: petPackService.listPacks() }
+  })
+
+  ipcMain.handle(IPC.PET_PACKS_SET_ACTIVE, (_event, payload) => {
+    const result = petPackService.setActivePack(payload.packId)
+    reloadAndSendAnimations(getPetWindow, petService)
+    return { ...result, animations: petService.getPreviewAnimations(), petPacks: petPackService.listPacks() }
+  })
+
+  ipcMain.handle(IPC.PET_PACKS_REMOVE, (_event, payload) => {
+    const result = petPackService.removePack(payload.packId)
+    return { ...result, petPacks: petPackService.listPacks() }
   })
 
   // 设置面板点击"保存"：持久化并通知宠物窗口应用变更

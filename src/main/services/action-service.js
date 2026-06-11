@@ -22,7 +22,7 @@ const emptyPetPack = {
   }
 }
 
-const createActionService = ({ loadPetPack, loadLegacyAnimations = getLegacyPetAnimations, projectRoot = path.join(__dirname, '..', '..', '..') }) => {
+const createActionService = ({ petPackService, loadPetPack, loadLegacyAnimations = getLegacyPetAnimations, projectRoot = path.join(__dirname, '..', '..', '..') }) => {
   let cachedPetPack = null
 
   const getPetPack = () => {
@@ -32,11 +32,18 @@ const createActionService = ({ loadPetPack, loadLegacyAnimations = getLegacyPetA
         cachedPetPack = loadPetPack()
         return cachedPetPack
       }
-      cachedPetPack = loadLegacyPetPack({
-        id: 'legacy-cat',
-        displayName: 'Legacy Cat',
-        getPetAnimations: loadLegacyAnimations
-      })
+      if (petPackService) {
+        cachedPetPack = petPackService.getActivePetPack()
+        return cachedPetPack
+      }
+      cachedPetPack = {
+        ...loadLegacyPetPack({
+          id: 'legacy-cat',
+          displayName: 'Legacy Cat',
+          getPetAnimations: loadLegacyAnimations
+        }),
+        rootPath: projectRoot
+      }
       return cachedPetPack
     } catch (error) {
       console.error('Failed to load pet pack:', error)
@@ -59,12 +66,13 @@ const createActionService = ({ loadPetPack, loadLegacyAnimations = getLegacyPetA
 
   const getPreviewConfig = () => {
     const config = getConfig()
+    const previewRoot = getPetPack().rootPath || projectRoot
     return {
       ...config,
       actions: config.actions.map((action) => ({
         ...action,
         previewSprite: action.sprite
-          ? pathToFileURL(path.join(projectRoot, action.sprite)).toString()
+          ? pathToFileURL(path.join(previewRoot, action.sprite)).toString()
           : ''
       }))
     }

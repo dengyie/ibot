@@ -38,6 +38,10 @@ const defaultSettings = {
     storage: {},
     logs: []
   },
+  petPacks: {
+    activePackId: 'legacy-cat',
+    installed: {}
+  },
   localHttp: {
     enabled: false,
     host: '127.0.0.1',
@@ -73,6 +77,13 @@ const mergeSettings = (settings = {}) => ({
       ...(settings.plugins?.storage || {})
     },
     logs: Array.isArray(settings.plugins?.logs) ? settings.plugins.logs : defaultSettings.plugins.logs
+  },
+  petPacks: {
+    ...defaultSettings.petPacks,
+    ...(isPlainObject(settings.petPacks) ? settings.petPacks : {}),
+    installed: isPlainObject(settings.petPacks?.installed)
+      ? settings.petPacks.installed
+      : defaultSettings.petPacks.installed
   },
   localHttp: {
     ...defaultSettings.localHttp,

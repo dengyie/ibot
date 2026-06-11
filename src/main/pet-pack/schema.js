@@ -2,6 +2,7 @@ const DEFAULT_VERSION = '1.0.0'
 const DEFAULT_SCHEMA_VERSION = 1
 const MIN_FRAME_MS = 16
 const MAX_FRAME_MS = 5000
+const SAFE_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/
 
 const inferActionKind = (actionId) => {
   if (/idle|bai|stand/i.test(actionId)) return 'idle'
@@ -18,6 +19,13 @@ const inferActionKind = (actionId) => {
 const assertNonEmptyString = (value, fieldName) => {
   if (typeof value !== 'string' || value.trim() === '') {
     throw new Error(`pet pack ${fieldName} must be a non-empty string`)
+  }
+}
+
+const assertSafeId = (value, fieldName) => {
+  assertNonEmptyString(value, fieldName)
+  if (!SAFE_ID_PATTERN.test(value)) {
+    throw new Error(`pet pack ${fieldName} must be a safe id`)
   }
 }
 
@@ -44,7 +52,7 @@ const toPositiveInteger = (value, fieldName, { min = 1, max = Number.MAX_SAFE_IN
 }
 
 const normalizeAction = (action) => {
-  assertNonEmptyString(action?.id, 'action.id')
+  assertSafeId(action?.id, 'action.id')
   const sprite = assertSafeRelativePath(action?.sprite, `action(${action.id}).sprite`)
 
   return {
@@ -61,7 +69,7 @@ const normalizeAction = (action) => {
 }
 
 const normalizePetPackManifest = (manifest) => {
-  assertNonEmptyString(manifest?.id, 'id')
+  assertSafeId(manifest?.id, 'id')
 
   const actions = Array.isArray(manifest.actions) ? manifest.actions.map(normalizeAction) : []
   if (!actions.length) throw new Error('pet pack must include at least one action')

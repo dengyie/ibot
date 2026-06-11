@@ -17,6 +17,7 @@ const { createPetRendererSettings, normalizeLocalHttpConfig, registerIpcHandlers
 const { createEventBus } = require('./src/main/services/event-bus')
 const { createSettingsService } = require('./src/main/services/settings-service')
 const { createActionService } = require('./src/main/services/action-service')
+const { createPetPackService } = require('./src/main/services/pet-pack-service')
 const { createPetService } = require('./src/main/services/pet-service')
 const { createSecretService } = require('./src/main/services/secret-service')
 const { createAiService } = require('./src/main/services/ai-service')
@@ -50,7 +51,12 @@ app.whenReady().then(() => {
     saveSettings,
     syncSideEffects: (settings) => syncLoginItemSettings(settings.autoStart)
   })
-  const actionService = createActionService({})
+  const petPackService = createPetPackService({
+    settingsService,
+    userPacksDir: path.join(app.getPath('userData'), 'pet-packs'),
+    projectRoot: __dirname
+  })
+  const actionService = createActionService({ petPackService })
   const petService = createPetService({ eventBus, settingsService, actionService })
   const secretService = createSecretService()
   const aiService = createAiService({ settingsService, secretService })
@@ -63,6 +69,7 @@ app.whenReady().then(() => {
   const pluginService = createPluginService({
     settingsService,
     petService,
+    petPackService,
     aiService,
     pluginDirs: [path.join(app.getPath('userData'), 'plugins')],
     officialPlugins: [createBasicBehaviorPlugin()]
@@ -86,6 +93,7 @@ app.whenReady().then(() => {
   registerIpcHandlers({
     getPetWindow,
     petService,
+    petPackService,
     aiService,
     pluginService,
     localHttpService,
