@@ -108,7 +108,7 @@ function CatalogItem({ item, kind, preparing, onPrepareInstall }) {
   const key = `${kind}:${item.id}`
   const title = kind === 'plugin' ? item.name : item.displayName
   const meta = kind === 'plugin'
-    ? [item.id, item.version, item.author, item.ibotApiVersion].filter(Boolean).join(' · ')
+    ? [item.id, item.version, item.author, item.openpetApiVersion || item.ibotApiVersion].filter(Boolean).join(' · ')
     : [item.id, item.version, item.author, `${item.actionCount || 0} actions`].filter(Boolean).join(' · ')
   return (
     <div className={item.blockStatus?.blocked ? 'catalog-item blocked' : 'catalog-item'}>

@@ -1,4 +1,4 @@
-# ibot MCP Compatibility Matrix
+# OpenPet MCP Compatibility Matrix
 
 > Last updated: 2026-06-12
 
@@ -18,7 +18,7 @@
 - Session TTL and max session pruning.
 - Token rotation and Service-tab session revocation.
 - Tool argument schema validation.
-- MCP-specific access log paths such as `/mcp/tools/call/ibot.say`.
+- MCP-specific access log paths such as `/mcp/tools/call/openpet.say`.
 
 ## Known Gaps
 

@@ -27,7 +27,7 @@
 }
 ```
 
-内置 catalog 位于 `catalog/ibot-catalog.json`，打包时随应用一起发布。后续如果接入远端 marketplace，仍复用同一 schema。
+内置 catalog 位于 `catalog/openpet-catalog.json`，打包时随应用一起发布。后续如果接入远端 marketplace，仍复用同一 schema。
 
 ## 3. 安全规则
 

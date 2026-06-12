@@ -6,7 +6,7 @@ const path = require('path')
 
 const { createSecretService } = require('../../src/main/services/secret-service')
 
-const createTempStore = () => path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-secrets-')), 'secrets.json')
+const createTempStore = () => path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-secrets-')), 'secrets.json')
 
 test('secret service stores secret values behind refs', () => {
   const storePath = createTempStore()

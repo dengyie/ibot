@@ -82,7 +82,7 @@ export function useServicePane() {
       const content = await api.exportServiceLogs({ format })
       const extension = format === 'csv' ? 'csv' : 'json'
       const type = format === 'csv' ? 'text/csv;charset=utf-8' : 'application/json;charset=utf-8'
-      downloadTextFile(`ibot-service-logs.${extension}`, content, type)
+      downloadTextFile(`openpet-service-logs.${extension}`, content, type)
       setStatus('访问日志已导出')
     } catch (error) {
       setStatus(error.message || '日志导出失败')

@@ -175,7 +175,7 @@ test('ai service sends behavior tool definition and parses tool call intent', as
               content: '',
               tool_calls: [{
                 function: {
-                  name: 'ibot_behavior',
+                  name: 'openpet_behavior',
                   arguments: JSON.stringify({
                     intent: 'success',
                     actionId: 'done',
@@ -193,13 +193,67 @@ test('ai service sends behavior tool definition and parses tool call intent', as
 
   const result = await service.chat({ message: 'Finish it' })
 
-  assert.equal(requests[0].tools[0].function.name, 'ibot_behavior')
+  assert.equal(requests[0].tools[0].function.name, 'openpet_behavior')
   assert.equal(result.reply, '完成了')
   assert.deepEqual(result.behaviorIntent, {
     intent: 'success',
     actionId: 'done',
     confidence: 0.9,
     bubbleText: '完成了'
+  })
+})
+
+test('ai service accepts legacy ibot_behavior tool calls for compatibility', async () => {
+  const service = createAiService({
+    settingsService: createSettingsService({
+      ai: {
+        enabled: true,
+        provider: 'openai-compatible',
+        baseUrl: 'https://example.test/v1',
+        model: 'example-model',
+        apiKeyRef: 'ai.default',
+        systemPrompt: '',
+        behavior: {
+          enabled: true,
+          useTools: true
+        }
+      }
+    }),
+    secretService: {
+      getSecretValue: () => 'sk-test',
+      setSecret: () => {}
+    },
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({
+        choices: [{
+          message: {
+            content: '',
+            tool_calls: [{
+              function: {
+                name: 'ibot_behavior',
+                arguments: JSON.stringify({
+                  intent: 'greeting',
+                  actionId: 'wave',
+                  confidence: 0.8,
+                  bubbleText: '你好'
+                })
+              }
+            }]
+          }
+        }]
+      })
+    })
+  })
+
+  const result = await service.chat({ message: 'Say hello' })
+
+  assert.equal(result.reply, '你好')
+  assert.deepEqual(result.behaviorIntent, {
+    intent: 'greeting',
+    actionId: 'wave',
+    confidence: 0.8,
+    bubbleText: '你好'
   })
 })
 

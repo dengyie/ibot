@@ -183,7 +183,7 @@ const extractZipToTemp = (zipPath) => {
     .split(/\r?\n/)
     .filter(Boolean)
   entries.forEach(assertSafeZipEntry)
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-plugin-package-'))
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-plugin-package-'))
   execFileSync('unzip', ['-qq', zipPath, '-d', tempRoot])
   return tempRoot
 }
@@ -192,11 +192,11 @@ const normalizeSourceRoot = (sourcePath) => {
   if (!sourcePath || typeof sourcePath !== 'string') throw new Error('Plugin source path is required')
   const stats = fs.statSync(sourcePath)
   if (stats.isDirectory()) return { rootPath: sourcePath, sourceType: 'directory', cleanupPath: '' }
-  if (stats.isFile() && /\.ibot-plugin\.zip$|\.zip$/i.test(sourcePath)) {
+  if (stats.isFile() && /\.(?:openpet|ibot)-plugin\.zip$|\.zip$/i.test(sourcePath)) {
     const rootPath = extractZipToTemp(sourcePath)
     return { rootPath, sourceType: 'zip', cleanupPath: rootPath }
   }
-  throw new Error('Plugin source must be a directory or .ibot-plugin.zip file')
+  throw new Error('Plugin source must be a directory or .openpet-plugin.zip file')
 }
 
 const createPluginInstallService = ({ settingsService, pluginDir, getPluginBlockStatus = () => ({ blocked: false, reasons: [] }) }) => {

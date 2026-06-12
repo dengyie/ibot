@@ -1,5 +1,5 @@
 /**
- * ibot 应用入口 — Electron 主进程。
+ * OpenPet 应用入口 — Electron 主进程。
  *
  * 职责：
  * 1. 应用生命周期（启动、退出、单实例锁、macOS Dock 激活）
@@ -95,7 +95,7 @@ app.whenReady().then(() => {
     pluginInstallService,
     pluginService,
     petPackService,
-    catalogPath: path.join(__dirname, 'catalog', 'ibot-catalog.json')
+    catalogPath: path.join(__dirname, 'catalog', 'openpet-catalog.json')
   })
   let localHttpConfig = petService.getSettings().localHttp
   if (localHttpConfig?.enabled) {

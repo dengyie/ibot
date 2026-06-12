@@ -5,7 +5,7 @@
 
 ## Summary
 
-ibot should keep the current local plugin runner as the near-term default: a short-lived child process with Node permission model flags, VM execution, and a parent-mediated SDK. It is already integrated, testable, and fits the product goal of small user-installed JavaScript plugins.
+OpenPet should keep the current local plugin runner as the near-term default: a short-lived child process with Node permission model flags, VM execution, and a parent-mediated SDK. It is already integrated, testable, and fits the product goal of small user-installed JavaScript plugins.
 
 This is not an absolute security boundary. Product wording and UI should describe third-party plugins as permission reviewed and isolated, not as mathematically safe. The install flow therefore defaults plugins to disabled, shows unsigned/signed state, and requires the user to enable a plugin after review.
 

@@ -42,7 +42,7 @@ const createOfficialPlugin = () => ({
 })
 
 const createPluginDir = () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-plugins-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-plugins-'))
   const pluginPath = path.join(root, 'focus-timer')
   fs.mkdirSync(pluginPath)
   fs.writeFileSync(path.join(pluginPath, 'plugin.json'), JSON.stringify({
@@ -69,7 +69,7 @@ const createPluginDirWithInvalidManifest = () => {
 }
 
 const createPluginDirWithEscapingSymlink = ({ fieldName }) => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-plugin-symlink-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-plugin-symlink-'))
   const pluginPath = path.join(root, 'escape-plugin')
   const outsidePath = path.join(root, fieldName === 'main' ? 'outside.js' : 'outside.schema.json')
   fs.mkdirSync(pluginPath)
@@ -90,7 +90,7 @@ const createPluginDirWithEscapingSymlink = ({ fieldName }) => {
 }
 
 const createRunnablePluginDir = ({ manifest = {}, source, configSchema }) => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-runnable-plugin-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-runnable-plugin-'))
   const pluginPath = path.join(root, manifest.id || 'local-runner')
   fs.mkdirSync(pluginPath)
   fs.writeFileSync(path.join(pluginPath, 'plugin.json'), JSON.stringify({

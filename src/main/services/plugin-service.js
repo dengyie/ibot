@@ -4,7 +4,7 @@ const { fork } = require('child_process')
 const { normalizePluginManifest } = require('../plugins/manifest')
 
 const LOCAL_PLUGIN_COMMAND_TIMEOUT_MS = 5000
-const SDK_REGISTERED_COMMANDS = Symbol('ibot.registeredCommands')
+const SDK_REGISTERED_COMMANDS = Symbol('openpet.registeredCommands')
 const SUPPORTED_CONFIG_TYPES = new Set(['string', 'number', 'boolean'])
 const STORAGE_KEY_PATTERN = /^[a-zA-Z0-9_.:-]{1,128}$/
 const MAX_PLUGIN_STORAGE_BYTES = 64 * 1024
@@ -16,7 +16,7 @@ const LOCAL_PLUGIN_RUNNER_PATH = path.join(__dirname, '../plugins/local-plugin-r
 
 const getSignatureStatus = (manifest) => {
   if (manifest.source === 'official') {
-    return { status: 'official', label: 'Official plugin', signer: 'ibot', algorithm: 'bundled' }
+    return { status: 'official', label: 'Official plugin', signer: 'openpet', algorithm: 'bundled' }
   }
   if (!manifest.signature) {
     return { status: 'unsigned', label: 'Unsigned plugin', signer: '', algorithm: '' }

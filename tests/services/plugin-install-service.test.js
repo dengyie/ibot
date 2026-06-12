@@ -31,7 +31,7 @@ const createSettingsService = (initialSettings = {}) => {
 const sha256 = (filePath) => crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex')
 
 const createPluginPackage = ({ root, id = 'focus-timer', version = '1.0.0', permissions = ['pet:say'], network, signature = false } = {}) => {
-  const pluginPath = path.join(root || fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-plugin-src-')), id)
+  const pluginPath = path.join(root || fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-plugin-src-')), id)
   fs.mkdirSync(pluginPath, { recursive: true })
   const manifest = {
     id,
@@ -47,7 +47,7 @@ const createPluginPackage = ({ root, id = 'focus-timer', version = '1.0.0', perm
   if (signature) {
     fs.writeFileSync(path.join(pluginPath, 'signature.json'), JSON.stringify({
       algorithm: 'sha256-test',
-      signer: 'ibot-labs',
+      signer: 'openpet-labs',
       value: 'local-test-signature',
       manifestSha256: sha256(path.join(pluginPath, 'plugin.json')),
       files: {
@@ -60,7 +60,7 @@ const createPluginPackage = ({ root, id = 'focus-timer', version = '1.0.0', perm
 }
 
 test('plugin install service inspects and installs an unsigned plugin disabled by default', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const settingsService = createSettingsService()
   const service = createPluginInstallService({ settingsService, pluginDir })
   const sourcePath = createPluginPackage()
@@ -87,23 +87,23 @@ test('plugin install service inspects and installs an unsigned plugin disabled b
 })
 
 test('plugin install service verifies local signature hash metadata', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const service = createPluginInstallService({ settingsService: createSettingsService(), pluginDir })
 
   const review = service.inspectPluginPackage(createPluginPackage({ signature: true }))
 
   assert.equal(review.signature.status, 'hash-verified')
-  assert.equal(review.signature.signer, 'ibot-labs')
+  assert.equal(review.signature.signer, 'openpet-labs')
   assert.deepEqual(review.signature.errors, [])
 })
 
 test('plugin install service does not mark partial signature metadata as verified', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const service = createPluginInstallService({ settingsService: createSettingsService(), pluginDir })
   const sourcePath = createPluginPackage()
   fs.writeFileSync(path.join(sourcePath, 'signature.json'), JSON.stringify({
     algorithm: 'sha256-test',
-    signer: 'ibot-labs',
+    signer: 'openpet-labs',
     value: 'local-test-signature',
     files: {
       'plugin.json': sha256(path.join(sourcePath, 'plugin.json'))
@@ -118,7 +118,7 @@ test('plugin install service does not mark partial signature metadata as verifie
 })
 
 test('plugin install service updates with permission diff and disables the plugin', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const settingsService = createSettingsService({
     plugins: {
       enabled: { 'focus-timer': true },
@@ -155,7 +155,7 @@ test('plugin install service updates with permission diff and disables the plugi
 })
 
 test('plugin install service rejects updating from the installed plugin directory itself', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const service = createPluginInstallService({ settingsService: createSettingsService(), pluginDir })
   const firstReview = service.inspectPluginPackage(createPluginPackage())
   service.installPlugin(firstReview.selectionId)
@@ -169,7 +169,7 @@ test('plugin install service rejects updating from the installed plugin director
 })
 
 test('plugin install service uninstalls one plugin without removing other plugin storage', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const settingsService = createSettingsService({
     plugins: {
       enabled: { 'focus-timer': true, other: true },
@@ -192,7 +192,7 @@ test('plugin install service uninstalls one plugin without removing other plugin
 })
 
 test('plugin install service can remove target plugin storage during uninstall', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
   const settingsService = createSettingsService({
     plugins: {
       storage: { 'focus-timer': { draft: true }, other: { keep: true } }
@@ -209,10 +209,25 @@ test('plugin install service can remove target plugin storage during uninstall',
   assert.deepEqual(settingsService.get().plugins.storage.other, { keep: true })
 })
 
+test('plugin install service accepts legacy .ibot-plugin.zip packages for compatibility', () => {
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
+  const zipRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-legacy-plugin-zip-'))
+  const sourcePath = createPluginPackage()
+  const zipPath = path.join(zipRoot, 'focus-timer.ibot-plugin.zip')
+  execFileSync('zip', ['-qr', zipPath, '.'], { cwd: sourcePath })
+  const service = createPluginInstallService({ settingsService: createSettingsService(), pluginDir })
+
+  const review = service.inspectPluginPackage(zipPath)
+
+  assert.equal(review.plugin.id, 'focus-timer')
+  assert.equal(review.sourceType, 'zip')
+  service.clearPendingSelection(review.selectionId)
+})
+
 test('plugin install service rejects zip packages with path traversal entries', () => {
-  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-installed-plugins-'))
-  const zipRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-plugin-zip-'))
-  const zipPath = path.join(zipRoot, 'bad.ibot-plugin.zip')
+  const pluginDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-installed-plugins-'))
+  const zipRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-plugin-zip-'))
+  const zipPath = path.join(zipRoot, 'bad.openpet-plugin.zip')
   const evilName = `${path.basename(zipRoot)}-evil.txt`
   fs.writeFileSync(path.join(path.dirname(zipRoot), evilName), 'bad')
   execFileSync('zip', ['-q', zipPath, `../${evilName}`], { cwd: zipRoot })

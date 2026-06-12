@@ -65,6 +65,8 @@ test('local http service starts on loopback and returns runtime status', async (
     const started = await service.start({ enabled: true, host: '127.0.0.1', port: 0, token: TEST_TOKEN })
     const result = await requestJson(`http://${started.host}:${started.port}/api/status`)
     const authenticatedResult = await requestJson(`http://${started.host}:${started.port}/api/status`, { token: TEST_TOKEN })
+    const headerAuthenticatedResult = await requestJson(`http://${started.host}:${started.port}/api/status`, { headers: { 'X-OpenPet-Token': TEST_TOKEN } })
+    const legacyHeaderAuthenticatedResult = await requestJson(`http://${started.host}:${started.port}/api/status`, { headers: { 'X-iBot-Token': TEST_TOKEN } })
 
     assert.equal(started.host, '127.0.0.1')
     assert.equal(result.status, 200)
@@ -72,6 +74,8 @@ test('local http service starts on loopback and returns runtime status', async (
     assert.equal(result.body.service.host, '127.0.0.1')
     assert.equal(result.body.snapshot, undefined)
     assert.equal(authenticatedResult.body.snapshot.settings.scale, 1)
+    assert.equal(headerAuthenticatedResult.body.snapshot.settings.scale, 1)
+    assert.equal(legacyHeaderAuthenticatedResult.body.snapshot.settings.scale, 1)
   } finally {
     await service.stop()
   }
@@ -514,21 +518,21 @@ test('local http service exposes mcp tools behind token and session', async () =
         jsonrpc: '2.0',
         id: 4,
         method: 'tools/call',
-        params: { name: 'ibot.say', arguments: { text: 'hello mcp', ttlMs: 700 } }
+        params: { name: 'openpet.say', arguments: { text: 'hello mcp', ttlMs: 700 } }
       }
     })
 
     assert.equal(unauthorized.status, 401)
     assert.equal(initialized.status, 200)
     assert.equal(Boolean(sessionId), true)
-    assert.equal(initialized.body.result.serverInfo.name, 'ibot')
+    assert.equal(initialized.body.result.serverInfo.name, 'openpet')
     assert.equal(missingSession.status, 401)
     assert.equal(tools.status, 200)
     assert.deepEqual(tools.body.result.tools.map((tool) => tool.name), [
-      'ibot.status',
-      'ibot.say',
-      'ibot.play_action',
-      'ibot.set_event'
+      'openpet.status',
+      'openpet.say',
+      'openpet.play_action',
+      'openpet.set_event'
     ])
     assert.equal(call.status, 200)
     assert.deepEqual(call.body.result.structuredContent, { text: 'hello mcp', ttlMs: 700, source: 'mcp' })
@@ -611,7 +615,7 @@ test('local http service validates mcp tool arguments before side effects', asyn
         jsonrpc: '2.0',
         id: 2,
         method: 'tools/call',
-        params: { name: 'ibot.say', arguments: { text: '' } }
+        params: { name: 'openpet.say', arguments: { text: '' } }
       }
     })
 
@@ -756,11 +760,11 @@ test('local http service logs mcp tool calls with tool-specific paths', async ()
         jsonrpc: '2.0',
         id: 2,
         method: 'tools/call',
-        params: { name: 'ibot.say', arguments: { text: 'logged' } }
+        params: { name: 'openpet.say', arguments: { text: 'logged' } }
       }
     })
 
-    assert.equal(service.getLogs({ query: 'ibot.say' }).some((log) => log.path === '/mcp/tools/call/ibot.say'), true)
+    assert.equal(service.getLogs({ query: 'openpet.say' }).some((log) => log.path === '/mcp/tools/call/openpet.say'), true)
   } finally {
     await service.stop()
   }

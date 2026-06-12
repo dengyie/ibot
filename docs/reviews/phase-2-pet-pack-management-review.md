@@ -19,7 +19,7 @@ No blocking findings.
 
 ## 3. Residual Risk
 
-- 当前只支持目录导入，`.ibot-pet.zip` 包格式和升级 diff 留给后续生态阶段。
+- 当前只支持目录导入，`.openpet-pet.zip` 包格式和升级 diff 留给后续生态阶段。
 - 宠物整包预览显示 sprite sheet 的压缩图，而不是逐帧播放；功能可用但视觉预览后续可以增强。
 - Actions 页仍保留 legacy 帧文件夹导入；active 用户 pack 下的动作编辑策略还需要 Phase 7/运营阶段统一规划。
 

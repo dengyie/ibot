@@ -1,4 +1,4 @@
-# ibot Release Checklist
+# OpenPet Release Checklist
 
 > Purpose: keep local test builds, signed releases, and public artifacts reproducible without exposing signing credentials.
 
@@ -35,8 +35,8 @@ The app must continue to build unsigned local packages when these variables are 
 Run these checks on the signed app or mounted DMG output:
 
 ```bash
-codesign --verify --deep --strict --verbose=2 "release/mac/ibot.app"
-spctl --assess --type execute --verbose=4 "release/mac/ibot.app"
+codesign --verify --deep --strict --verbose=2 "release/mac/OpenPet.app"
+spctl --assess --type execute --verbose=4 "release/mac/OpenPet.app"
 ```
 
 ## 5. Update Check

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "updatedAt": "2026-06-12T00:00:00.000Z",
-  "feedbackUrl": "https://github.com/dengyie/ibot/issues/new",
+  "feedbackUrl": "https://github.com/dengyie/openpet/issues/new",
   "blocklist": {
     "pluginIds": [],
     "packIds": [],
@@ -13,11 +13,11 @@
       "name": "Basic Behavior",
       "version": "1.0.0",
       "description": "Bundled behavior commands for greeting and validating the plugin SDK.",
-      "author": "ibot",
-      "ibotApiVersion": "1.x",
+      "author": "OpenPet",
+      "openpetApiVersion": "1.x",
       "permissions": ["pet:say"],
       "networkAllowlist": [],
-      "reportUrl": "https://github.com/dengyie/ibot/issues/new"
+      "reportUrl": "https://github.com/dengyie/openpet/issues/new"
     }
   ],
   "petPacks": [
@@ -25,12 +25,12 @@
       "id": "legacy-cat",
       "displayName": "Legacy Cat",
       "version": "1.0.0",
-      "description": "Bundled legacy cat pet pack shipped with ibot.",
-      "author": "ibot",
+      "description": "Bundled legacy cat pet pack shipped with OpenPet.",
+      "author": "OpenPet",
       "petPackSchemaVersion": 1,
       "actionCount": 2,
       "previewImage": "",
-      "reportUrl": "https://github.com/dengyie/ibot/issues/new"
+      "reportUrl": "https://github.com/dengyie/openpet/issues/new"
     }
   ]
 }

@@ -24,7 +24,7 @@ const createSettingsService = (initialSettings = {}) => {
   }
 }
 
-const createTempDir = (name) => fs.mkdtempSync(path.join(os.tmpdir(), `ibot-${name}-`))
+const createTempDir = (name) => fs.mkdtempSync(path.join(os.tmpdir(), `openpet-${name}-`))
 
 const createPetPackDirectory = (root, manifest = {}) => {
   fs.mkdirSync(path.join(root, 'sprites'), { recursive: true })
@@ -49,7 +49,7 @@ const createPetPackDirectory = (root, manifest = {}) => {
 const createService = (settingsService = createSettingsService()) => createPetPackService({
   settingsService,
   userPacksDir: createTempDir('pet-packs'),
-  projectRoot: '/app/ibot',
+  projectRoot: '/app/openpet',
   loadLegacyAnimations: () => ({
     defaultAction: 'bai_no_bg',
     clickAction: 'eat_no_bg',
@@ -181,7 +181,7 @@ test('pet pack service blocks importing and activating packs denied by ecosystem
   const service = createPetPackService({
     settingsService,
     userPacksDir: createTempDir('pet-packs'),
-    projectRoot: '/app/ibot',
+    projectRoot: '/app/openpet',
     loadLegacyAnimations: () => ({ defaultAction: 'idle', clickAction: 'idle', actions: [{ id: 'idle', sprite: 'cat_anime/sprites/idle.png', frameCount: 1, frameMs: 100, frameWidth: 1, frameHeight: 1 }] }),
     getPetPackBlockStatus: ({ id }) => id === 'blocked-cat'
       ? { blocked: true, reasons: ['packId:blocked-cat'] }

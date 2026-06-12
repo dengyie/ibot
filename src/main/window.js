@@ -73,7 +73,7 @@ const createSettingsWindow = (petWindow) => {
     alwaysOnTop: true,
     backgroundColor: '#f5f5f5',
     hasShadow: true,
-    title: 'ibot Control Center',
+    title: 'OpenPet Control Center',
     webPreferences: {
       preload: path.join(projectRoot, 'control-center-preload.js'),
       contextIsolation: true,
@@ -98,7 +98,7 @@ const createSettingsWindow = (petWindow) => {
   )
   settingsWindow.setPosition(Math.round(settingsX), Math.round(settingsY))
   settingsWindow.loadFile(path.join(projectRoot, 'dist', 'control-center', 'index.html')).catch((error) => {
-    settingsWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><title>ibot Control Center</title><body style="font-family: system-ui; padding: 24px;"><h1>Control Center build missing</h1><p>${error.message}</p></body>`)}`)
+    settingsWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><title>OpenPet Control Center</title><body style="font-family: system-ui; padding: 24px;"><h1>Control Center build missing</h1><p>${error.message}</p></body>`)}`)
   })
   settingsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 

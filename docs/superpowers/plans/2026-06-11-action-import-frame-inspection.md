@@ -71,7 +71,7 @@ Add an empty-folder test:
 
 ```js
 test('sprite generator reports empty frame folders as errors', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-inspect-empty-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'OpenPet-inspect-empty-'))
 
   const result = await inspectFrameFolder(root)
 
@@ -164,7 +164,7 @@ Add tests for inspection and duplicate action blocking:
 
 ```js
 test('action import service inspects a selected frames folder for an action id', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-inspect-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'OpenPet-action-inspect-'))
   const sourceDir = path.join(root, 'source-wave')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -183,7 +183,7 @@ test('action import service inspects a selected frames folder for an action id',
 })
 
 test('action import service reports duplicate action ids during inspection', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-duplicate-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'OpenPet-action-duplicate-'))
   const sourceDir = path.join(root, 'source-idle')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -201,7 +201,7 @@ test('action import service reports duplicate action ids during inspection', asy
 })
 
 test('action import service blocks duplicate action ids during final import', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-import-duplicate-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'OpenPet-action-import-duplicate-'))
   const sourceDir = path.join(root, 'source-idle')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')

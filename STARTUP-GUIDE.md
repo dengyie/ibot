@@ -1,4 +1,4 @@
-# ibot 最高效启动指南
+# OpenPet 最高效启动指南
 
 ## 🚀 快速启动（最推荐）
 
@@ -60,7 +60,7 @@ npm test
 # 运行特定测试
 npm test -- tests/services/plugin-service.test.js
 ```
-- ✅ 1.2 秒运行 165 个测试
+- ✅ 1.2 秒运行 167 个测试
 - ✅ Service 层 100% 覆盖
 
 ---
@@ -184,7 +184,7 @@ npm test
 npm run pack
 
 # 4. 验证打包产物
-open release/mac-arm64/ibot.app
+open release/mac-arm64/OpenPet.app
 ```
 
 ---

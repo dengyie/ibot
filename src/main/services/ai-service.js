@@ -20,6 +20,8 @@ const DEFAULT_MAX_CONVERSATIONS = 20
 const MAX_CONVERSATION_ID_CHARS = 160
 const MAX_STORED_MESSAGE_CHARS = 8000
 const MAX_USER_MESSAGE_CHARS = 4000
+const BEHAVIOR_TOOL_NAME = 'openpet_behavior'
+const LEGACY_BEHAVIOR_TOOL_NAME = 'ibot_behavior'
 
 const HISTORY_ROLES = new Set(['user', 'assistant'])
 
@@ -64,7 +66,7 @@ const parseBehaviorToolArguments = (value) => {
 const parseBehaviorIntent = (message = {}) => {
   const toolCalls = Array.isArray(message.tool_calls) ? message.tool_calls : []
   for (const toolCall of toolCalls) {
-    if (toolCall?.function?.name !== 'ibot_behavior') continue
+    if (![BEHAVIOR_TOOL_NAME, LEGACY_BEHAVIOR_TOOL_NAME].includes(toolCall?.function?.name)) continue
     const intent = parseBehaviorToolArguments(toolCall.function.arguments)
     if (intent) return intent
   }
@@ -88,8 +90,8 @@ const parseChatResult = (data) => {
 const getBehaviorToolDefinition = () => ({
   type: 'function',
   function: {
-    name: 'ibot_behavior',
-    description: 'Choose an ibot pet behavior for this assistant reply.',
+    name: BEHAVIOR_TOOL_NAME,
+    description: 'Choose an OpenPet behavior for this assistant reply.',
     parameters: {
       type: 'object',
       properties: {

@@ -3,17 +3,18 @@ const crypto = require('crypto')
 const MCP_PROTOCOL_VERSION = '2025-03-26'
 const DEFAULT_MCP_SESSION_TTL_MS = 60 * 60 * 1000
 const DEFAULT_MAX_MCP_SESSIONS = 16
+const MCP_SERVER_NAME = 'openpet'
 
 const isPlainObject = (value) => value && typeof value === 'object' && !Array.isArray(value)
 
 const MCP_TOOLS = [
   {
-    name: 'ibot.status',
-    description: 'Get the current ibot pet snapshot.',
+    name: 'openpet.status',
+    description: 'Get the current OpenPet snapshot.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false }
   },
   {
-    name: 'ibot.say',
+    name: 'openpet.say',
     description: 'Show a speech bubble on the desktop pet.',
     inputSchema: {
       type: 'object',
@@ -26,7 +27,7 @@ const MCP_TOOLS = [
     }
   },
   {
-    name: 'ibot.play_action',
+    name: 'openpet.play_action',
     description: 'Play a pet action by id.',
     inputSchema: {
       type: 'object',
@@ -38,7 +39,7 @@ const MCP_TOOLS = [
     }
   },
   {
-    name: 'ibot.set_event',
+    name: 'openpet.set_event',
     description: 'Set a pet event with an optional message.',
     inputSchema: {
       type: 'object',
@@ -52,6 +53,15 @@ const MCP_TOOLS = [
     }
   }
 ]
+
+const LEGACY_TOOL_NAMES = {
+  'ibot.status': 'openpet.status',
+  'ibot.say': 'openpet.say',
+  'ibot.play_action': 'openpet.play_action',
+  'ibot.set_event': 'openpet.set_event'
+}
+
+const normalizeToolName = (name) => LEGACY_TOOL_NAMES[name] || name
 
 const createJsonRpcResult = (id, result) => ({ jsonrpc: '2.0', id, result })
 
@@ -125,13 +135,14 @@ const createMcpTransportService = ({
   }
 
   const callTool = (name, args = {}) => {
-    const tool = MCP_TOOLS.find((candidate) => candidate.name === name)
+    const normalizedName = normalizeToolName(name)
+    const tool = MCP_TOOLS.find((candidate) => candidate.name === normalizedName)
     if (!tool) throw new Error(`Unknown MCP tool: ${name}`)
     validateInputSchema(tool.inputSchema, args)
-    if (name === 'ibot.status') return petService.getSnapshot()
-    if (name === 'ibot.say') return petService.say({ text: args.text, ttlMs: args.ttlMs, source: 'mcp' })
-    if (name === 'ibot.play_action') return petService.playAction({ actionId: args.actionId, source: 'mcp' })
-    if (name === 'ibot.set_event') return petService.setEvent({ ...args, source: 'mcp' })
+    if (normalizedName === 'openpet.status') return petService.getSnapshot()
+    if (normalizedName === 'openpet.say') return petService.say({ text: args.text, ttlMs: args.ttlMs, source: 'mcp' })
+    if (normalizedName === 'openpet.play_action') return petService.playAction({ actionId: args.actionId, source: 'mcp' })
+    if (normalizedName === 'openpet.set_event') return petService.setEvent({ ...args, source: 'mcp' })
     throw new Error(`Unknown MCP tool: ${name}`)
   }
 
@@ -150,7 +161,7 @@ const createMcpTransportService = ({
         body: createJsonRpcResult(id, {
           protocolVersion: MCP_PROTOCOL_VERSION,
           capabilities: { tools: {} },
-          serverInfo: { name: 'ibot', version: '1.0.0' }
+          serverInfo: { name: MCP_SERVER_NAME, version: '1.0.0' }
         })
       }
     }

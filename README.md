@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🐾 ibot
+# 🐾 OpenPet
 
 **An extensible, distributable, and operable Electron desktop pet platform**
 
-[![Tests](https://img.shields.io/badge/tests-165%20passed-success)](./tests)
+[![Tests](https://img.shields.io/badge/tests-167%20passed-success)](./tests)
 [![Build](https://img.shields.io/badge/build-passing-success)](./package.json)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](./package.json)
@@ -13,7 +13,7 @@
 
 [Features](#features) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Plugin Development](#plugin-development) • [Contributing](#contributing)
 
-![ibot Demo](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=ibot+Desktop+Pet+Platform)
+![OpenPet Demo](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=OpenPet+Desktop+Pet+Platform)
 
 </div>
 
@@ -21,7 +21,7 @@
 
 ## 🌟 Overview
 
-**ibot** is an Electron-based desktop pet platform that evolved from a simple desktop mascot into an extensible pet runtime platform. A transparent-background cat stands on your desktop, supporting drag-and-drop, walking, action playback, and extensibility through plugins, AI, and HTTP APIs.
+**OpenPet** is an Electron-based desktop pet platform that evolved from a simple desktop mascot into an extensible pet runtime platform. A transparent-background cat stands on your desktop, supporting drag-and-drop, walking, action playback, and extensibility through plugins, AI, and HTTP APIs.
 
 ### Key Highlights
 
@@ -107,8 +107,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/dengyie/ibot.git
-cd ibot
+git clone https://github.com/dengyie/openpet.git
+cd openpet
 
 # Install dependencies
 npm install
@@ -122,7 +122,7 @@ npm start
 ```bash
 npm start                    # Build Control Center + launch Electron
 npm run dev:control-center   # Control Center hot reload (http://127.0.0.1:5173)
-npm test                     # Run all tests (165 tests)
+npm test                     # Run all tests (167 tests)
 npm run check:syntax         # JS syntax validation
 npm run generate-sprites     # Regenerate sprite sheets from cat_anime/flames/
 npm run pack                 # electron-builder directory package
@@ -177,7 +177,7 @@ my-plugin/
   "version": "1.0.0",
   "description": "A sample plugin",
   "author": "Your Name",
-  "ibotApiVersion": "1.x",
+  "openpetApiVersion": "1.x",
   "permissions": ["pet:say", "ai:chat"],
   "networkAllowlist": ["https://api.example.com"],
   "commands": [
@@ -294,7 +294,7 @@ For more details, see [plugin-sandbox-evaluation.md](./docs/plugin-sandbox-evalu
 
 ## 🧪 Testing
 
-The project uses **Node native test runner** with **165 tests all passing**.
+The project uses **Node native test runner** with **167 tests all passing**.
 
 ```bash
 npm test                     # Run all tests
@@ -334,7 +334,7 @@ Contributions of code, plugins, pet packs, or documentation are welcome!
 
 ### Plugin Submissions
 
-1. Add plugin entry in `catalog/ibot-catalog.json`
+1. Add plugin entry in `catalog/openpet-catalog.json`
 2. Provide plugin source code or download link
 3. Submit PR explaining plugin functionality and permissions
 
@@ -383,8 +383,8 @@ Thanks to all contributors and community members for their support!
 
 ## 📧 Contact
 
-- **GitHub Issues**: [https://github.com/dengyie/ibot/issues](https://github.com/dengyie/ibot/issues)
-- **Author**: ibot contributors
+- **GitHub Issues**: [https://github.com/dengyie/openpet/issues](https://github.com/dengyie/openpet/issues)
+- **Author**: OpenPet contributors
 
 ---
 
@@ -392,6 +392,6 @@ Thanks to all contributors and community members for their support!
 
 **⭐ If you like this project, please give us a Star! ⭐**
 
-Made with ❤️ by the ibot team
+Made with ❤️ by the OpenPet team
 
 </div>

@@ -5,7 +5,7 @@ const { createAboutService, compareVersions, normalizeGithubPublish } = require(
 
 const createApp = (overrides = {}) => ({
   isPackaged: false,
-  getName: () => 'ibot',
+  getName: () => 'OpenPet',
   getVersion: () => '1.0.0',
   ...overrides
 })
@@ -14,18 +14,18 @@ test('about service returns version and update feed summary without secrets', ()
   const service = createAboutService({
     app: createApp({ isPackaged: true }),
     packageJson: {
-      name: 'ibot',
+      name: 'openpet',
       version: '1.0.0',
       build: {
-        productName: 'ibot',
-        publish: [{ provider: 'github', owner: 'dengyie', repo: 'ibot', channel: 'latest' }]
+        productName: 'OpenPet',
+        publish: [{ provider: 'github', owner: 'dengyie', repo: 'openpet', channel: 'latest' }]
       }
     }
   })
 
   assert.deepEqual(service.getInfo(), {
-    name: 'ibot',
-    productName: 'ibot',
+    name: 'openpet',
+    productName: 'OpenPet',
     version: '1.0.0',
     packaged: true,
     platform: process.platform,
@@ -34,9 +34,9 @@ test('about service returns version and update feed summary without secrets', ()
       configured: true,
       provider: 'github',
       owner: 'dengyie',
-      repo: 'ibot',
+      repo: 'openpet',
       channel: 'latest',
-      url: 'https://github.com/dengyie/ibot/releases'
+      url: 'https://github.com/dengyie/openpet/releases'
     }
   })
 })
@@ -44,7 +44,7 @@ test('about service returns version and update feed summary without secrets', ()
 test('about service reports update checks as not configured without a publish target', async () => {
   const service = createAboutService({
     app: createApp(),
-    packageJson: { name: 'ibot', version: '1.0.0' }
+    packageJson: { name: 'openpet', version: '1.0.0' }
   })
 
   const result = await service.checkForUpdates()
@@ -60,10 +60,10 @@ test('about service checks GitHub releases and filters install assets', async ()
   const service = createAboutService({
     app: createApp(),
     packageJson: {
-      name: 'ibot',
+      name: 'openpet',
       version: '1.0.0',
       build: {
-        publish: { provider: 'github', owner: 'dengyie', repo: 'ibot' }
+        publish: { provider: 'github', owner: 'dengyie', repo: 'openpet' }
       }
     },
     fetchImpl: async (url, options) => {
@@ -72,11 +72,11 @@ test('about service checks GitHub releases and filters install assets', async ()
         ok: true,
         json: async () => ({
           tag_name: 'v1.1.0',
-          html_url: 'https://github.com/dengyie/ibot/releases/tag/v1.1.0',
+          html_url: 'https://github.com/dengyie/openpet/releases/tag/v1.1.0',
           prerelease: false,
           assets: [
-            { name: 'ibot.dmg', browser_download_url: 'https://example.test/ibot.dmg', size: 1024 },
-            { name: 'ibot.blockmap', browser_download_url: 'https://example.test/ibot.blockmap', size: 12 }
+            { name: 'OpenPet.dmg', browser_download_url: 'https://example.test/OpenPet.dmg', size: 1024 },
+            { name: 'OpenPet.blockmap', browser_download_url: 'https://example.test/OpenPet.blockmap', size: 12 }
           ]
         })
       }
@@ -85,22 +85,22 @@ test('about service checks GitHub releases and filters install assets', async ()
 
   const result = await service.checkForUpdates()
 
-  assert.equal(requests[0].url, 'https://api.github.com/repos/dengyie/ibot/releases/latest')
+  assert.equal(requests[0].url, 'https://api.github.com/repos/dengyie/openpet/releases/latest')
   assert.equal(requests[0].options.headers.Authorization, undefined)
   assert.equal(result.status, 'ok')
   assert.equal(result.latestVersion, '1.1.0')
   assert.equal(result.updateAvailable, true)
-  assert.deepEqual(result.assets, [{ name: 'ibot.dmg', url: 'https://example.test/ibot.dmg', size: 1024 }])
+  assert.deepEqual(result.assets, [{ name: 'OpenPet.dmg', url: 'https://example.test/OpenPet.dmg', size: 1024 }])
 })
 
 test('about service returns a safe error summary for failed update checks', async () => {
   const service = createAboutService({
     app: createApp(),
     packageJson: {
-      name: 'ibot',
+      name: 'openpet',
       version: '1.0.0',
       build: {
-        publish: { provider: 'github', owner: 'dengyie', repo: 'ibot' }
+        publish: { provider: 'github', owner: 'dengyie', repo: 'openpet' }
       }
     },
     fetchImpl: async () => ({ ok: false, status: 503 })
@@ -117,10 +117,10 @@ test('about service times out stalled update checks', async () => {
   const service = createAboutService({
     app: createApp(),
     packageJson: {
-      name: 'ibot',
+      name: 'openpet',
       version: '1.0.0',
       build: {
-        publish: { provider: 'github', owner: 'dengyie', repo: 'ibot' }
+        publish: { provider: 'github', owner: 'dengyie', repo: 'openpet' }
       }
     },
     fetchImpl: async () => new Promise(() => {}),

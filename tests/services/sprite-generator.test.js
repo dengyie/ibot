@@ -19,7 +19,7 @@ const createFrame = async (filePath, width, height) => {
 }
 
 test('sprite generator discovers frame folders and writes animations config', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-sprites-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-sprites-'))
   const framesRoot = path.join(root, 'flames')
   const spritesDir = path.join(root, 'sprites')
   const configPath = path.join(root, 'animations.json')
@@ -48,7 +48,7 @@ test('sprite generator discovers frame folders and writes animations config', as
 })
 
 test('sprite generator inspects frame folders before import', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-inspect-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-inspect-'))
   await createFrame(path.join(root, '10_no_bg.png'), 18, 12)
   await createFrame(path.join(root, '02_no_bg.png'), 10, 20)
   fs.writeFileSync(path.join(root, 'notes.txt'), 'ignore me')
@@ -66,7 +66,7 @@ test('sprite generator inspects frame folders before import', async () => {
 })
 
 test('sprite generator reports missing alpha channel in frame inspection', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-inspect-alpha-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-inspect-alpha-'))
   await sharp({
     create: {
       width: 8,
@@ -85,7 +85,7 @@ test('sprite generator reports missing alpha channel in frame inspection', async
 })
 
 test('sprite generator reports empty frame folders as errors', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-inspect-empty-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-inspect-empty-'))
 
   const result = await inspectFrameFolder(root)
 

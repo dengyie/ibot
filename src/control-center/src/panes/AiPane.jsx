@@ -121,7 +121,7 @@ export function AiPane({
         <div className="field-row">
           <div>
             <div className="field-label">Provider tools</div>
-            <div className="field-note">ibot_behavior tool_call</div>
+            <div className="field-note">openpet_behavior tool_call</div>
           </div>
           <Toggle checked={behavior.useTools} onChange={(useTools) => onChangeBehavior({ useTools })} />
         </div>

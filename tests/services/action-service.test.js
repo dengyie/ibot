@@ -76,7 +76,7 @@ test('action service can expose the normalized pet pack while preserving animati
 
 test('action service can expose preview-safe file urls for sprites', () => {
   const service = createActionService({
-    projectRoot: '/app/ibot',
+    projectRoot: '/app/openpet',
     loadLegacyAnimations: () => ({
       defaultAction: 'idle',
       clickAction: 'idle',
@@ -94,7 +94,7 @@ test('action service can expose preview-safe file urls for sprites', () => {
     {
       id: 'idle',
       sprite: 'cat_anime/sprites/idle.png',
-      previewSprite: 'file:///app/ibot/cat_anime/sprites/idle.png'
+      previewSprite: 'file:///app/openpet/cat_anime/sprites/idle.png'
     }
   ])
 })

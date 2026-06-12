@@ -68,7 +68,7 @@ const invokeSdk = (operation, payload = {}) => new Promise((resolve, reject) => 
 
 const createContext = (mainPath) => {
   const context = vm.createContext(Object.create(null), {
-    name: `ibot-local-plugin:${mainPath}`,
+    name: `openpet-local-plugin:${mainPath}`,
     codeGeneration: { strings: false, wasm: false }
   })
 
@@ -96,15 +96,15 @@ const runPluginCommand = async ({ mainPath, commandId, payload = {}, config = {}
   loadPlugin(context, mainPath)
 
   const execute = vm.compileFunction(`
-    const __ibotPayload = JSON.parse(payloadJson);
-    const __ibotConfig = JSON.parse(configJson);
-    const __ibotClone = (value) => value == null || typeof value !== 'object'
+    const __openpetPayload = JSON.parse(payloadJson);
+    const __openpetConfig = JSON.parse(configJson);
+    const __openpetClone = (value) => value == null || typeof value !== 'object'
       ? value
       : JSON.parse(JSON.stringify(value));
-    const __ibotRegisteredCommands = Object.create(null);
-    const __ibotCtx = Object.freeze({
+    const __openpetRegisteredCommands = Object.create(null);
+    const __openpetCtx = Object.freeze({
       config: Object.freeze({
-        get: (key) => key ? __ibotClone(__ibotConfig[key]) : __ibotClone(__ibotConfig)
+        get: (key) => key ? __openpetClone(__openpetConfig[key]) : __openpetClone(__openpetConfig)
       }),
       storage: Object.freeze({
         get: (key, fallbackValue) => {
@@ -136,7 +136,7 @@ const runPluginCommand = async ({ mainPath, commandId, payload = {}, config = {}
         register: (command) => {
           if (!command || !command.id) throw new Error('Plugin command id is required');
           if (typeof command.handler !== 'function') throw new Error('Plugin command handler is required: ' + command.id);
-          __ibotRegisteredCommands[command.id] = command.handler;
+          __openpetRegisteredCommands[command.id] = command.handler;
           return command.id;
         }
       })
@@ -146,11 +146,11 @@ const runPluginCommand = async ({ mainPath, commandId, payload = {}, config = {}
       const exported = module.exports && module.exports.default ? module.exports.default : module.exports;
       const activate = typeof exported === 'function' ? exported : exported && exported.activate;
       if (typeof activate !== 'function') throw new Error('Plugin main must export an activate function');
-      const returnedCommands = await Promise.resolve(activate(__ibotCtx) || {});
-      const commands = Object.assign(Object.create(null), returnedCommands, __ibotRegisteredCommands);
+      const returnedCommands = await Promise.resolve(activate(__openpetCtx) || {});
+      const commands = Object.assign(Object.create(null), returnedCommands, __openpetRegisteredCommands);
       const handler = commands[commandId];
       if (typeof handler !== 'function') throw new Error('Plugin command handler is not a function');
-      return await Promise.resolve(handler(__ibotPayload));
+      return await Promise.resolve(handler(__openpetPayload));
     })();
   `, ['bridge', 'commandId', 'payloadJson', 'configJson'], {
     parsingContext: context,

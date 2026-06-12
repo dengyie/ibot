@@ -1,6 +1,6 @@
 # Phase 5 开发文档：MCP / 外部 agent 产品化
 
-> 阶段目标：让外部 agent 能稳定、安全、可文档化地使用 ibot MCP，而不只是“能 POST JSON-RPC”。  
+> 阶段目标：让外部 agent 能稳定、安全、可文档化地使用 OpenPet MCP，而不只是“能 POST JSON-RPC”。  
 > 范围约束：本地服务仍默认关闭，只允许 loopback，所有 MCP mutating 行为必须通过 token + session，并最终走 `PetService`。
 
 ## 1. 本阶段交付

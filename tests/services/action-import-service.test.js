@@ -26,7 +26,7 @@ const createActionFolder = async (framesRoot, actionId) => {
 }
 
 test('action import service copies selected frames folder and regenerates actions', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-import-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-import-'))
   const sourceDir = path.join(root, 'source-wave')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -50,7 +50,7 @@ test('action import service copies selected frames folder and regenerates action
 })
 
 test('action import service inspects a selected frames folder for an action id', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-inspect-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-inspect-'))
   const sourceDir = path.join(root, 'source-wave')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -69,7 +69,7 @@ test('action import service inspects a selected frames folder for an action id',
 })
 
 test('action import service reports duplicate action ids during inspection', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-duplicate-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-duplicate-'))
   const sourceDir = path.join(root, 'source-idle')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -87,7 +87,7 @@ test('action import service reports duplicate action ids during inspection', asy
 })
 
 test('action import service blocks duplicate action ids during final import', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-import-duplicate-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-import-duplicate-'))
   const sourceDir = path.join(root, 'source-idle')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -105,7 +105,7 @@ test('action import service blocks duplicate action ids during final import', as
 })
 
 test('action import service updates default and click actions without dropping actions', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-config-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-config-'))
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
   const configPath = path.join(root, 'cat_anime', 'animations.json')
@@ -126,7 +126,7 @@ test('action import service updates default and click actions without dropping a
 })
 
 test('action import service preserves custom labels after regenerating config', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-label-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-label-'))
   const sourceDir = path.join(root, 'source-wave')
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
@@ -144,7 +144,7 @@ test('action import service preserves custom labels after regenerating config', 
 })
 
 test('action import service deletes an action and regenerates config', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-delete-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-delete-'))
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
   const configPath = path.join(root, 'cat_anime', 'animations.json')
@@ -163,7 +163,7 @@ test('action import service deletes an action and regenerates config', async () 
 })
 
 test('action import service refuses to delete the last valid action', async () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-action-delete-last-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-action-delete-last-'))
   const framesRoot = path.join(root, 'cat_anime', 'flames')
   const spritesDir = path.join(root, 'cat_anime', 'sprites')
   const configPath = path.join(root, 'cat_anime', 'animations.json')

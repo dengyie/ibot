@@ -19,7 +19,7 @@ No blocking findings after fixes.
 - Session TTL is configurable for tests and reported in runtime status.
 - `GET /mcp` provides an authenticated `text/event-stream` endpoint handshake for clients probing streamable HTTP.
 - Service tab can display active MCP session count and revoke all sessions.
-- Access logs now distinguish MCP tool calls with paths such as `/mcp/tools/call/ibot.say`, while still avoiding token values.
+- Access logs now distinguish MCP tool calls with paths such as `/mcp/tools/call/openpet.say`, while still avoiding token values.
 - MCP docs now include usage examples and a compatibility matrix.
 
 ## 4. Residual Risk

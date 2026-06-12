@@ -1,4 +1,4 @@
-# ibot MCP Usage
+# OpenPet MCP Usage
 
 > Local only. The MCP endpoint is disabled until the Control Center Service tab starts the local HTTP service.
 
@@ -25,14 +25,14 @@ Authorization: Bearer <token>
 or:
 
 ```text
-X-ibot-Token: <token>
+X-OpenPet-Token: <token>
 ```
 
 ## Initialize
 
 ```bash
 curl -i http://127.0.0.1:32123/mcp \
-  -H "Authorization: Bearer $IBOT_TOKEN" \
+  -H "Authorization: Bearer $OPENPET_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize"}'
 ```
@@ -43,8 +43,8 @@ Save the returned `Mcp-Session-Id` header. Tool requests must include it.
 
 ```bash
 curl http://127.0.0.1:32123/mcp \
-  -H "Authorization: Bearer $IBOT_TOKEN" \
-  -H "Mcp-Session-Id: $IBOT_MCP_SESSION" \
+  -H "Authorization: Bearer $OPENPET_TOKEN" \
+  -H "Mcp-Session-Id: $OPENPET_MCP_SESSION" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
 ```
@@ -53,10 +53,10 @@ curl http://127.0.0.1:32123/mcp \
 
 ```bash
 curl http://127.0.0.1:32123/mcp \
-  -H "Authorization: Bearer $IBOT_TOKEN" \
-  -H "Mcp-Session-Id: $IBOT_MCP_SESSION" \
+  -H "Authorization: Bearer $OPENPET_TOKEN" \
+  -H "Mcp-Session-Id: $OPENPET_MCP_SESSION" \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"ibot.say","arguments":{"text":"hello from MCP"}}}'
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"openpet.say","arguments":{"text":"hello from MCP"}}}'
 ```
 
 ## Stream Handshake
@@ -65,18 +65,18 @@ Clients that probe streamable HTTP can send:
 
 ```bash
 curl http://127.0.0.1:32123/mcp \
-  -H "Authorization: Bearer $IBOT_TOKEN" \
-  -H "Mcp-Session-Id: $IBOT_MCP_SESSION"
+  -H "Authorization: Bearer $OPENPET_TOKEN" \
+  -H "Mcp-Session-Id: $OPENPET_MCP_SESSION"
 ```
 
 The service responds with a short `text/event-stream` endpoint event.
 
 ## Tools
 
-- `ibot.status`: returns the pet snapshot.
-- `ibot.say`: shows a speech bubble.
-- `ibot.play_action`: plays an action by id.
-- `ibot.set_event`: sets a pet event with an optional message.
+- `openpet.status`: returns the pet snapshot.
+- `openpet.say`: shows a speech bubble.
+- `openpet.play_action`: plays an action by id.
+- `openpet.set_event`: sets a pet event with an optional message.
 
 ## Security Notes
 

@@ -74,8 +74,8 @@ const createAboutService = ({ app, packageJson, fetchImpl = globalThis.fetch, ti
   const publish = normalizeGithubPublish(pkg.build?.publish)
 
   const getInfo = () => ({
-    name: pkg.name || app.getName?.() || 'ibot',
-    productName: pkg.build?.productName || app.getName?.() || pkg.name || 'ibot',
+    name: pkg.name || app.getName?.() || 'openpet',
+    productName: pkg.build?.productName || app.getName?.() || pkg.name || 'OpenPet',
     version: app.getVersion?.() || pkg.version || '0.0.0',
     packaged: Boolean(app.isPackaged),
     platform: process.platform,
@@ -130,7 +130,7 @@ const createAboutService = ({ app, packageJson, fetchImpl = globalThis.fetch, ti
         method: 'GET',
         headers: {
           Accept: 'application/vnd.github+json',
-          'User-Agent': `${pkg.name || 'ibot'}-update-check`
+          'User-Agent': `${pkg.name || 'openpet'}-update-check`
         },
         signal: controller?.signal
       }), controller, timeoutMs)

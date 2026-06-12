@@ -79,7 +79,7 @@ Reviewed after implementation:
 - [ ] Add an API token concept to `localHttp` settings or runtime state.
 - [ ] Generate a token when enabling the service if one does not exist.
 - [ ] Require the token for all mutating endpoints.
-- [ ] Prefer an `Authorization: Bearer <token>` header or `X-ibot-Token` header.
+- [ ] Prefer an `Authorization: Bearer <token>` header or `X-OpenPet-Token` header.
 - [ ] Reject mutating requests without the token before reading the body.
 - [ ] Reject unsupported content types for JSON endpoints.
 - [ ] Decide whether `GET /api/status` should expose full `petService.getSnapshot()` without a token. If not, return only service status publicly and require token for the full snapshot.

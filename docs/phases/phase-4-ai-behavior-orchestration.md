@@ -18,7 +18,7 @@
 
 ### 2.1 AiService tool-call intent
 
-OpenAI-compatible provider 在行为编排启用时可发送 `ibot_behavior` tool 定义。Provider 返回 `tool_calls` 时，`AiService.chat()` 返回：
+OpenAI-compatible provider 在行为编排启用时可发送 `openpet_behavior` tool 定义。Provider 返回 `tool_calls` 时，`AiService.chat()` 返回：
 
 ```json
 {

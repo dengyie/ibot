@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🐾 ibot
+# 🐾 OpenPet
 
 **一个可扩展、可分发、可运营的 Electron 桌面宠物平台**
 
-[![Tests](https://img.shields.io/badge/tests-165%20passed-success)](./tests)
+[![Tests](https://img.shields.io/badge/tests-167%20passed-success)](./tests)
 [![Build](https://img.shields.io/badge/build-passing-success)](./package.json)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](./package.json)
@@ -19,7 +19,7 @@
 
 ## 🌟 项目简介
 
-**ibot** 是一个 Electron 桌面宠物平台，从单体桌宠演化为可扩展的 pet runtime 平台。一只透明背景的猫咪站在桌面上，支持拖拽、散步、动作播放，并可通过插件、AI、HTTP API 进行扩展。
+**OpenPet** 是一个 Electron 桌面宠物平台，从单体桌宠演化为可扩展的 pet runtime 平台。一只透明背景的猫咪站在桌面上，支持拖拽、散步、动作播放，并可通过插件、AI、HTTP API 进行扩展。
 
 ### 核心亮点
 
@@ -105,8 +105,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/dengyie/ibot.git
-cd ibot
+git clone https://github.com/dengyie/openpet.git
+cd openpet
 
 # 安装依赖
 npm install
@@ -120,7 +120,7 @@ npm start
 ```bash
 npm start                    # 构建 Control Center + 启动 Electron
 npm run dev:control-center   # Control Center 热重载 (http://127.0.0.1:5173)
-npm test                     # 运行全部测试（165 个测试）
+npm test                     # 运行全部测试（167 个测试）
 npm run check:syntax         # JS 语法验证
 npm run generate-sprites     # 从 cat_anime/flames/ 重新生成 sprite sheets
 npm run pack                 # electron-builder 目录打包
@@ -175,7 +175,7 @@ my-plugin/
   "version": "1.0.0",
   "description": "A sample plugin",
   "author": "Your Name",
-  "ibotApiVersion": "1.x",
+  "openpetApiVersion": "1.x",
   "permissions": ["pet:say", "ai:chat"],
   "networkAllowlist": ["https://api.example.com"],
   "commands": [
@@ -292,7 +292,7 @@ const response = await ctx.network.fetch(url, options);
 
 ## 🧪 测试
 
-项目使用 **Node 原生 test runner**，当前有 **165 个测试全部通过**。
+项目使用 **Node 原生 test runner**，当前有 **167 个测试全部通过**。
 
 ```bash
 npm test                     # 运行全部测试
@@ -332,7 +332,7 @@ npm run build:control-center # Control Center 构建验证
 
 ### 插件提交
 
-1. 在 `catalog/ibot-catalog.json` 中添加插件条目
+1. 在 `catalog/openpet-catalog.json` 中添加插件条目
 2. 提供插件源码或下载链接
 3. 提交 PR 说明插件功能和权限
 
@@ -381,8 +381,8 @@ MIT License - 详见 [LICENSE](./LICENSE) 文件
 
 ## 📧 联系方式
 
-- **GitHub Issues**: [https://github.com/dengyie/ibot/issues](https://github.com/dengyie/ibot/issues)
-- **作者**: ibot contributors
+- **GitHub Issues**: [https://github.com/dengyie/openpet/issues](https://github.com/dengyie/openpet/issues)
+- **作者**: OpenPet contributors
 
 ---
 
@@ -390,6 +390,6 @@ MIT License - 详见 [LICENSE](./LICENSE) 文件
 
 **⭐ 如果你喜欢这个项目，请给我们一个 Star！ ⭐**
 
-Made with ❤️ by the ibot team
+Made with ❤️ by the OpenPet team
 
 </div>

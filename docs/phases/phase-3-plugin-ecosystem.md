@@ -20,7 +20,7 @@
 
 新增 `src/main/services/plugin-install-service.js`：
 
-- `inspectPluginPackage(sourcePath)`：支持插件目录和 `.ibot-plugin.zip`，校验 `plugin.json`、`main`、`configSchema`、权限、网络 allowlist、symlink 和路径穿越。
+- `inspectPluginPackage(sourcePath)`：支持插件目录和 `.openpet-plugin.zip`，校验 `plugin.json`、`main`、`configSchema`、权限、网络 allowlist、symlink 和路径穿越。
 - `installPlugin(selectionId)`：复制插件到 `userData/plugins/<plugin-id>`，默认 disabled。
 - `updatePlugin(selectionId)`：对比已安装插件的权限和网络 host，更新后默认 disabled。
 - `uninstallPlugin(pluginId, options)`：删除插件文件和配置，可选择删除私有 storage。
@@ -31,7 +31,7 @@
 第一版包格式：
 
 ```text
-my-plugin.ibot-plugin.zip
+my-plugin.openpet-plugin.zip
 ├── plugin.json
 ├── index.js
 ├── config.schema.json
@@ -44,7 +44,7 @@ my-plugin.ibot-plugin.zip
 ```json
 {
   "algorithm": "sha256",
-  "signer": "ibot-labs",
+  "signer": "openpet-labs",
   "value": "signature-value",
   "manifestSha256": "...",
   "files": {

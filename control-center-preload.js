@@ -1,5 +1,5 @@
 /**
- * ibot Control Center 预加载脚本。
+ * OpenPet Control Center 预加载脚本。
  *
  * 暴露配置管理 UI 需要的最小主进程接口。AI、插件和本地服务后续也从这里扩展，
  * 不让管理页面直接接触 Node.js / Electron API。

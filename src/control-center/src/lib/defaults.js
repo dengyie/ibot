@@ -77,8 +77,8 @@ export const defaultCatalog = {
 }
 
 export const defaultAboutInfo = {
-  name: 'ibot',
-  productName: 'ibot',
+  name: 'openpet',
+  productName: 'OpenPet',
   version: '0.0.0',
   packaged: false,
   platform: '',

@@ -14,6 +14,7 @@ const extractBearerToken = (header = '') => {
 
 const getRequestToken = (request) => {
   return extractBearerToken(request.headers.authorization)
+    || String(request.headers['x-openpet-token'] || '')
     || String(request.headers['x-ibot-token'] || '')
 }
 

@@ -39,12 +39,12 @@ test('normalizes optional plugin signature metadata', () => {
     version: '1.0.0',
     signature: {
       algorithm: 'ed25519',
-      signer: 'ibot-labs',
+      signer: 'openpet-labs',
       value: 'sig-example'
     }
   }).signature, {
     algorithm: 'ed25519',
-    signer: 'ibot-labs',
+    signer: 'openpet-labs',
     value: 'sig-example'
   })
 

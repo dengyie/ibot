@@ -1,5 +1,5 @@
 /**
- * ibot 宠物窗口预加载脚本。
+ * OpenPet 宠物窗口预加载脚本。
  *
  * 职责：通过 contextBridge 暴露 window.petAPI，是渲染进程访问主进程的唯一安全通道。
  * contextIsolation: true 确保渲染进程无法直接访问 Node.js / 文件系统。

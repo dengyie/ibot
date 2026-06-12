@@ -15,7 +15,7 @@ No blocking findings after fixes.
 
 ## 3. Review Notes
 
-- `AiService` now sends the `ibot_behavior` OpenAI-compatible tool definition only when behavior orchestration and provider tools are enabled.
+- `AiService` now sends the `openpet_behavior` OpenAI-compatible tool definition only when behavior orchestration and provider tools are enabled.
 - Provider `tool_calls` are parsed into `behaviorIntent` with `intent`, `actionId`, `confidence`, and `bubbleText`; empty assistant content can use `bubbleText` as the pet bubble reply.
 - `BehaviorOrchestratorService` owns rules, cooldown, dry-run, action whitelist checks, fallback semantic matching, and bounded recent decisions.
 - `ipc.js` still executes behavior exclusively through `PetService.say()`, `PetService.playAction()`, and `PetService.setEvent()`.

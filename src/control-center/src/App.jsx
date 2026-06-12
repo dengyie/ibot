@@ -38,7 +38,7 @@ export function App() {
     <main className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <strong>ibot</strong>
+          <strong>OpenPet</strong>
           <span>Control Center</span>
         </div>
         <nav className="nav" aria-label="Control Center">

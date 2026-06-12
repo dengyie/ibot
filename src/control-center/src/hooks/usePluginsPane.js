@@ -165,7 +165,7 @@ export function usePluginsPane() {
       const content = await api.exportPluginLogs({ ...filters, format })
       const extension = format === 'csv' ? 'csv' : 'json'
       const type = format === 'csv' ? 'text/csv;charset=utf-8' : 'application/json;charset=utf-8'
-      downloadTextFile(`ibot-plugin-logs.${extension}`, content, type)
+      downloadTextFile(`openpet-plugin-logs.${extension}`, content, type)
       setStatus('日志已导出')
     } catch (error) {
       setStatus(error.message || '日志导出失败')

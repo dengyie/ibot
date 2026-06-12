@@ -58,16 +58,26 @@ test('mcp transport tools call uses pet service and rejects invalid args', () =>
     jsonrpc: '2.0',
     id: 2,
     method: 'tools/call',
-    params: { name: 'ibot.say', arguments: { text: 'hello' } }
+    params: { name: 'openpet.say', arguments: { text: 'hello' } }
   })
   const bad = service.handleJsonRpc(request, {
     jsonrpc: '2.0',
     id: 3,
     method: 'tools/call',
-    params: { name: 'ibot.say', arguments: { text: 'hello', extra: true } }
+    params: { name: 'openpet.say', arguments: { text: 'hello', extra: true } }
+  })
+  const legacy = service.handleJsonRpc(request, {
+    jsonrpc: '2.0',
+    id: 4,
+    method: 'tools/call',
+    params: { name: 'ibot.say', arguments: { text: 'legacy' } }
   })
 
-  assert.deepEqual(calls, [{ text: 'hello', ttlMs: undefined, source: 'mcp' }])
+  assert.deepEqual(calls, [
+    { text: 'hello', ttlMs: undefined, source: 'mcp' },
+    { text: 'legacy', ttlMs: undefined, source: 'mcp' }
+  ])
   assert.equal(ok.body.result.structuredContent.text, 'hello')
   assert.equal(bad.body.error.code, -32602)
+  assert.equal(legacy.body.result.structuredContent.text, 'legacy')
 })

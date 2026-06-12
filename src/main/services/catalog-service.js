@@ -71,7 +71,7 @@ const extractZipToTemp = (zipPath, tempRoot) => {
     .split(/\r?\n/)
     .filter(Boolean)
   entries.forEach(assertSafeZipEntry)
-  const extractRoot = fs.mkdtempSync(path.join(tempRoot, 'ibot-catalog-zip-'))
+  const extractRoot = fs.mkdtempSync(path.join(tempRoot, 'openpet-catalog-zip-'))
   execFileSync('unzip', ['-qq', zipPath, '-d', extractRoot])
   return extractRoot
 }
@@ -108,7 +108,7 @@ const normalizePluginEntry = (entry = {}) => {
     version: String(entry.version || '0.0.0'),
     description: String(entry.description || ''),
     author: String(entry.author || ''),
-    ibotApiVersion: String(entry.ibotApiVersion || ''),
+    openpetApiVersion: String(entry.openpetApiVersion || entry.ibotApiVersion || ''),
     permissions: normalizeStringArray(entry.permissions),
     networkAllowlist: normalizeStringArray(entry.networkAllowlist),
     reportUrl: normalizeOptionalHttpsUrl(entry.reportUrl),
@@ -294,7 +294,7 @@ const createCatalogService = ({
     const digest = hashBuffer(buffer)
     if (digest !== entry.sha256) throw new Error('Catalog package sha256 does not match')
     assertNotBlocked({ kind: entry.kind, id: entry.id, sha256: digest })
-    const packagePath = path.join(fs.mkdtempSync(path.join(tempRoot, 'ibot-catalog-package-')), `${entry.id}.zip`)
+    const packagePath = path.join(fs.mkdtempSync(path.join(tempRoot, 'openpet-catalog-package-')), `${entry.id}.zip`)
     fs.writeFileSync(packagePath, buffer)
     return { packagePath, sha256: digest }
   }

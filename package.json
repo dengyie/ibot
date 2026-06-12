@@ -1,8 +1,8 @@
 {
-  "name": "ibot",
+  "name": "openpet",
   "version": "1.0.0",
-  "description": "Electron desktop pet platform with Control Center, AI, plugins, and local APIs.",
-  "author": "ibot contributors",
+  "description": "OpenPet Electron desktop pet platform with Control Center, AI, plugins, and local APIs.",
+  "author": "OpenPet contributors",
   "main": "main.js",
   "scripts": {
     "start": "npm run build:control-center && electron .",
@@ -16,8 +16,8 @@
     "test": "node --test \"tests/**/*.test.js\""
   },
   "build": {
-    "appId": "com.ibot.desktop-pet",
-    "productName": "ibot",
+    "appId": "com.openpet.desktop-pet",
+    "productName": "OpenPet",
     "files": [
       "main.js",
       "index.html",
@@ -40,7 +40,7 @@
       {
         "provider": "github",
         "owner": "dengyie",
-        "repo": "ibot",
+        "repo": "openpet",
         "channel": "latest"
       }
     ],

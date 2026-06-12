@@ -1,4 +1,4 @@
-# ibot Pet Platform 开发文档
+# OpenPet Pet Platform 开发文档
 
 > 目标：把当前单体 Electron 桌宠重构为可扩展的 pet runtime 平台，支持 UI 配置、AI 聊天、动作帧导入、官方能力模块和第三方插件。
 
@@ -141,7 +141,7 @@ Phase 6 当前范围：
 - `PetService.playAction()` 会推送到宠物窗口切换动作。
 - `PetService.setEvent()` 第一版映射为气泡消息，后续可扩展为完整 runtime event。
 - HTTP 访问日志持久化到设置中，Control Center Service 页支持刷新、JSON/CSV 导出和清空。
-- MCP bridge 已通过 `POST /mcp` 暴露最小 JSON-RPC 工具集：`ibot.status`、`ibot.say`、`ibot.play_action`、`ibot.set_event`。MCP 请求必须先带 token 完成 `initialize`，后续请求还必须携带 `Mcp-Session-Id`；token 原地轮换会清空 MCP session。
+- MCP bridge 已通过 `POST /mcp` 暴露最小 JSON-RPC 工具集：`openpet.status`、`openpet.say`、`openpet.play_action`、`openpet.set_event`。MCP 请求必须先带 token 完成 `initialize`，后续请求还必须携带 `Mcp-Session-Id`；token 原地轮换会清空 MCP session。
 
 Actions 导入已新增：
 
@@ -220,7 +220,7 @@ pet.json 示例：
   "id": "my-plugin",
   "name": "My Plugin",
   "version": "1.0.0",
-  "description": "A plugin for ibot",
+  "description": "A plugin for OpenPet",
   "main": "index.js",
   "permissions": ["pet:say", "pet:action", "storage", "ai:chat", "network"],
   "configSchema": "config.schema.json",

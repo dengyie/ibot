@@ -13,7 +13,7 @@ const { createPetPackService, BUILT_IN_PACK_ID } = require('../../src/main/servi
 
 const sha256Buffer = (buffer) => crypto.createHash('sha256').update(buffer).digest('hex')
 
-const createTempDir = (name) => fs.mkdtempSync(path.join(os.tmpdir(), `ibot-${name}-`))
+const createTempDir = (name) => fs.mkdtempSync(path.join(os.tmpdir(), `openpet-${name}-`))
 
 const createSettingsService = (initialSettings = {}) => {
   let settings = {
@@ -104,7 +104,7 @@ const createRealServices = ({ settingsService = createSettingsService(), catalog
   const petPackService = createPetPackService({
     settingsService,
     userPacksDir,
-    projectRoot: '/app/ibot',
+    projectRoot: '/app/openpet',
     loadLegacyAnimations: () => ({ defaultAction: 'idle', clickAction: 'idle', actions: [{ id: 'idle', sprite: 'cat_anime/sprites/idle.png', frameCount: 1, frameMs: 100, frameWidth: 1, frameHeight: 1 }] }),
     getPetPackBlockStatus: (candidate) => catalogService?.getPetPackBlockStatus(candidate) || { blocked: false, reasons: [] }
   })

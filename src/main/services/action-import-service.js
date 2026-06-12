@@ -113,7 +113,7 @@ const createActionImportService = ({ framesRoot, spritesDir, configPath }) => {
 
     const targetDir = path.join(framesRoot, actionId)
     const spritePath = path.join(spritesDir, `${actionId}.png`)
-    const backupRoot = path.join(path.dirname(framesRoot), '.ibot-delete-backups', `${actionId}-${Date.now()}`)
+    const backupRoot = path.join(path.dirname(framesRoot), '.openpet-delete-backups', `${actionId}-${Date.now()}`)
     const backupFramesDir = path.join(backupRoot, 'frames')
     const backupSpritePath = path.join(backupRoot, `${actionId}.png`)
     const movedFrames = moveIfExists(targetDir, backupFramesDir)

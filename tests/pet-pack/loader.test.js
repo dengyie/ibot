@@ -7,7 +7,7 @@ const path = require('node:path')
 const { getLegacyPetAnimations, loadPetPackFromDirectory, loadLegacyPetPack } = require('../../src/main/pet-pack/loader')
 
 test('loads and normalizes a pet pack manifest from a directory', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-pet-pack-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-pet-pack-'))
   fs.mkdirSync(path.join(root, 'sprites'))
   fs.writeFileSync(path.join(root, 'sprites', 'idle.png'), '')
   fs.writeFileSync(path.join(root, 'pet.json'), JSON.stringify({
@@ -121,7 +121,7 @@ test('converts legacy animation config into a pet pack manifest', () => {
 })
 
 test('reads legacy animations config from disk', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ibot-legacy-animations-'))
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'openpet-legacy-animations-'))
   const configPath = path.join(root, 'animations.json')
   fs.writeFileSync(configPath, JSON.stringify({
     defaultAction: 'idle',
