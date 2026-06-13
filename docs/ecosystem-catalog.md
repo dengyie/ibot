@@ -18,7 +18,7 @@
 {
   "schemaVersion": 1,
   "updatedAt": "2026-06-12T00:00:00.000Z",
-  "feedbackUrl": "https://github.com/dengyie/openpet/issues/new",
+  "feedbackUrl": "https://github.com/dengyie/OpenPet/issues/new",
   "blocklist": {
     "pluginIds": [],
     "packIds": [],
@@ -36,7 +36,7 @@
       "networkAllowlist": [],
       "packageUrl": "https://example.com/focus-timer.openpet-plugin.zip",
       "sha256": "64 lowercase hex characters",
-      "reportUrl": "https://github.com/dengyie/openpet/issues/new"
+      "reportUrl": "https://github.com/dengyie/OpenPet/issues/new"
     }
   ],
   "petPacks": [
@@ -51,7 +51,7 @@
       "previewImage": "https://example.com/pixel-cat.png",
       "packageUrl": "https://example.com/pixel-cat.openpet-pet.zip",
       "sha256": "64 lowercase hex characters",
-      "reportUrl": "https://github.com/dengyie/openpet/issues/new"
+      "reportUrl": "https://github.com/dengyie/OpenPet/issues/new"
     }
   ]
 }

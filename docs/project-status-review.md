@@ -37,7 +37,7 @@ tests/                    # 22 个测试文件，171 个测试全过
 
 ### v1.0.1-rc.1 增量状态
 
-- GitHub 仓库已迁移到 `dengyie/openpet`。
+- GitHub 仓库已迁移到 `dengyie/OpenPet`。
 - Electron `userData` 保持旧版 `appData/ibot`，避免改名后丢失用户设置、密钥、插件、Pet packs 与本地服务日志。
 - 新公开命名为 `openpet.*` MCP tools、`openpet_behavior`、`X-OpenPet-Token`、`.openpet-plugin.zip`。
 - 旧 `ibot.*` MCP tools、`ibot_behavior`、`X-ibot-token`、`ibotApiVersion`、`.ibot-plugin.zip` 保留兼容。
@@ -210,7 +210,7 @@ docs/release-checklist.md         # 发布清单
 **建议**：
 - 发布 v1.0.1-rc.1。
 - 在真实用户数据副本上完成升级 smoke test。
-- 确认 About 更新检查、release asset 与远端仓库均指向 `dengyie/openpet`。
+- 确认 About 更新检查、release asset 与远端仓库均指向 `dengyie/OpenPet`。
 
 ---
 
@@ -415,7 +415,7 @@ npm run pack                  # electron-builder pass
    - 旧 `ibot.*` aliases 仍可调用
 
 3. **验证发布链路**
-   - GitHub Releases 和 About 更新检查均指向 `dengyie/openpet`
+   - GitHub Releases 和 About 更新检查均指向 `dengyie/OpenPet`
 
 ### v1.1 版本规划（可选）
 

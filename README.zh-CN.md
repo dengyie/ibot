@@ -105,8 +105,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/dengyie/openpet.git
-cd openpet
+git clone https://github.com/dengyie/OpenPet.git
+cd OpenPet
 
 # 安装依赖
 npm install
@@ -389,7 +389,7 @@ MIT License - 详见 [LICENSE](./LICENSE) 文件
 
 ## 📧 联系方式
 
-- **GitHub Issues**: [https://github.com/dengyie/openpet/issues](https://github.com/dengyie/openpet/issues)
+- **GitHub Issues**: [https://github.com/dengyie/OpenPet/issues](https://github.com/dengyie/OpenPet/issues)
 - **作者**: OpenPet contributors
 
 ---

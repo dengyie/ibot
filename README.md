@@ -107,8 +107,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/dengyie/openpet.git
-cd openpet
+git clone https://github.com/dengyie/OpenPet.git
+cd OpenPet
 
 # Install dependencies
 npm install
@@ -391,7 +391,7 @@ Thanks to all contributors and community members for their support!
 
 ## 📧 Contact
 
-- **GitHub Issues**: [https://github.com/dengyie/openpet/issues](https://github.com/dengyie/openpet/issues)
+- **GitHub Issues**: [https://github.com/dengyie/OpenPet/issues](https://github.com/dengyie/OpenPet/issues)
 - **Author**: OpenPet contributors
 
 ---

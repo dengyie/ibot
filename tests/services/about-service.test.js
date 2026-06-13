@@ -18,7 +18,7 @@ test('about service returns version and update feed summary without secrets', ()
       version: '1.0.0',
       build: {
         productName: 'OpenPet',
-        publish: [{ provider: 'github', owner: 'dengyie', repo: 'openpet', channel: 'latest' }]
+        publish: [{ provider: 'github', owner: 'dengyie', repo: 'OpenPet', channel: 'latest' }]
       }
     }
   })
@@ -34,9 +34,9 @@ test('about service returns version and update feed summary without secrets', ()
       configured: true,
       provider: 'github',
       owner: 'dengyie',
-      repo: 'openpet',
+      repo: 'OpenPet',
       channel: 'latest',
-      url: 'https://github.com/dengyie/openpet/releases'
+      url: 'https://github.com/dengyie/OpenPet/releases'
     }
   })
 })
@@ -63,7 +63,7 @@ test('about service checks GitHub releases and filters install assets', async ()
       name: 'openpet',
       version: '1.0.0',
       build: {
-        publish: { provider: 'github', owner: 'dengyie', repo: 'openpet' }
+        publish: { provider: 'github', owner: 'dengyie', repo: 'OpenPet' }
       }
     },
     fetchImpl: async (url, options) => {
@@ -72,7 +72,7 @@ test('about service checks GitHub releases and filters install assets', async ()
         ok: true,
         json: async () => ({
           tag_name: 'v1.1.0',
-          html_url: 'https://github.com/dengyie/openpet/releases/tag/v1.1.0',
+          html_url: 'https://github.com/dengyie/OpenPet/releases/tag/v1.1.0',
           prerelease: false,
           assets: [
             { name: 'OpenPet.dmg', browser_download_url: 'https://example.test/OpenPet.dmg', size: 1024 },
@@ -85,7 +85,7 @@ test('about service checks GitHub releases and filters install assets', async ()
 
   const result = await service.checkForUpdates()
 
-  assert.equal(requests[0].url, 'https://api.github.com/repos/dengyie/openpet/releases/latest')
+  assert.equal(requests[0].url, 'https://api.github.com/repos/dengyie/OpenPet/releases/latest')
   assert.equal(requests[0].options.headers.Authorization, undefined)
   assert.equal(result.status, 'ok')
   assert.equal(result.latestVersion, '1.1.0')
@@ -100,7 +100,7 @@ test('about service returns a safe error summary for failed update checks', asyn
       name: 'openpet',
       version: '1.0.0',
       build: {
-        publish: { provider: 'github', owner: 'dengyie', repo: 'openpet' }
+        publish: { provider: 'github', owner: 'dengyie', repo: 'OpenPet' }
       }
     },
     fetchImpl: async () => ({ ok: false, status: 503 })
@@ -120,7 +120,7 @@ test('about service times out stalled update checks', async () => {
       name: 'openpet',
       version: '1.0.0',
       build: {
-        publish: { provider: 'github', owner: 'dengyie', repo: 'openpet' }
+        publish: { provider: 'github', owner: 'dengyie', repo: 'OpenPet' }
       }
     },
     fetchImpl: async () => new Promise(() => {}),

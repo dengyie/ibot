@@ -629,7 +629,7 @@ npm run pack                  # ✅ electron-builder pass
 RC 重点验证：
 1. 旧 `appData/ibot` 数据可被 OpenPet 继续读取。
 2. `openpet.*` 新 MCP tool 名可用，旧 `ibot.*` alias 仍可用。
-3. GitHub Releases、About 更新检查和本地 remote 均指向 `dengyie/openpet`。
+3. GitHub Releases、About 更新检查和本地 remote 均指向 `dengyie/OpenPet`。
 
 v1.1 版本规划（可选）：
 1. 前端自动化测试（Playwright）

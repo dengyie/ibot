@@ -104,7 +104,7 @@ OpenPet 是一个从单体桌宠演化为**可扩展 pet runtime 平台**的 Ele
 
 ### 🔖 v1.0.1-rc.1: OpenPet 改名与升级兼容
 - ✅ 应用、包名、窗口标题、文档与 GitHub 仓库迁移至 OpenPet / openpet
-- ✅ GitHub 仓库改名为 `dengyie/openpet`
+- ✅ GitHub 仓库改名为 `dengyie/OpenPet`
 - ✅ 保留旧版 `appData/ibot` userData 路径，升级用户继续读取 settings、secrets、插件、Pet packs 和本地服务日志
 - ✅ 新增 `openpet.*` MCP tools、`openpet_behavior`、`X-OpenPet-Token`、`.openpet-plugin.zip`
 - ✅ 保留 `ibot.*`、`ibot_behavior`、`X-ibot-token`、`ibotApiVersion`、`.ibot-plugin.zip` legacy alias

@@ -7,7 +7,7 @@ All notable OpenPet release records are kept here. Dates use Asia/Shanghai local
 ### Changed
 
 - Renamed the product and package from ibot to OpenPet / openpet.
-- Renamed the GitHub repository target to `dengyie/openpet` and updated local release, catalog, README, and MCP documentation references.
+- Renamed the GitHub repository target to `dengyie/OpenPet` and updated local release, catalog, README, and MCP documentation references.
 - Renamed the bundled catalog file from `catalog/ibot-catalog.json` to `catalog/openpet-catalog.json`.
 - Updated public integration names to `openpet.*`, `openpet_behavior`, `X-OpenPet-Token`, and `.openpet-plugin.zip`.
 - Polished user-facing OpenPet display names in plugin install dialogs and ecosystem documentation examples.
